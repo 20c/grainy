@@ -63,6 +63,45 @@ class TestPermissionSet(object):
     print pset.index
     assert pset.index == expected
 
+  def test_contains(self):
+    pset = core.PermissionSet(pdict)
+    assert "a" in pset
+    assert "a.b.c" in pset
+    assert "x" not in pset
+
+  def test_update(self):
+
+    pset = core.PermissionSet(pdict)
+
+    pset.update({"x":const.PERM_READ, "z":core.Permission("z", const.PERM_READ)})
+    assert "a" in pset
+    assert "a.b.c" in pset
+    assert "x" in pset
+    assert "z" in pset
+    
+    assert pset.check("x", const.PERM_READ) == True
+    assert pset.check("z", const.PERM_READ) == True
+    
+
+  def test_setitem_delitem(self):
+    pset = core.PermissionSet()
+    pset["a"] = const.PERM_READ
+    pset["a.b"] = const.PERM_RW
+    pset["b"] = const.PERM_READ
+
+    assert pset.permissions["a"].check(const.PERM_READ) == True
+    assert pset.permissions["a.b"].check(const.PERM_WRITE) == True
+    assert pset.permissions["b"].check(const.PERM_READ) == True
+
+    pset["a.b"] = const.PERM_READ
+
+    assert pset.permissions["a.b"].check(const.PERM_WRITE) == False 
+
+    del pset["b"]
+
+    assert "b" not in pset
+    
+
   def test_check(self):
     pset = core.PermissionSet(pdict2)
 

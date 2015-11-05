@@ -152,13 +152,61 @@ class PermissionSet(object):
       for ns, p in rules.items():
         self.__add__(Permission(ns, p))
 
+  @property
+  def namespaces(self):
+    """
+    Returns list of all namespaces registered in this permission set
+    """
+    return self.permissions.keys()
+
+  def __iter__(self):
+    for k,v in self.permissions.items():
+      yield v
+
+  def __contains__(self, item):
+    return item in self.permissions
+
   def __radd__(self, other):
     self.__add__(other)
   
   def __add__(self, other):
     if isinstance(other, Permission):
       self.permissions[str(other.namespace)] = other
+    self.update_index()
 
+  def __setitem__(self, key, other, reindex=True):
+    if isinstance(other, Permission):
+      self.permissions[key] = other
+    elif isinstance(other, (int, long)):
+      self.permissions[key] = Permission(key, other)
+    else:
+      raise TypeError("Value needs to be a Permission instance or a permission flag")
+    if reindex:
+      self.update_index()
+
+  def __delitem__(self, namespace):
+    if namespace in self.permissions:
+      del self.permissions[namespace]
+    else:
+      raise KeyError("No permission registered under namespace '%s'" % namespace)
+    self.update_index()
+
+  def update(self, permissions):
+    """
+    Update the permissionset with a dict of namespace<str>:permission<Permission|int|long>
+    pairs
+
+    Example:
+
+        pset.update(
+          {
+            "a" : const.PERM_READ,
+            "b" : Permission("b", const.PERM_RW)
+          }
+        )
+    """
+    for k,v in permissions.items():
+      self.__setitem__(k,v,reindex=False)
     self.update_index()
 
   def update_index(self):
