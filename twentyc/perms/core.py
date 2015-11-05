@@ -187,6 +187,26 @@ class PermissionSet(object):
       branch["__"] = p.value
 
     self.index = idx
+
+    # update read access map
+
+    ramap = {}
+   
+    def update_ramap(branch, branch_idx):
+      r = {"__":False}
+      for k,v in branch_idx.items():
+        if k != "__":
+          r[k] = update_ramap(r, v)
+
+      if branch_idx["__"] is not None and (branch_idx["__"] & const.PERM_READ) != 0:
+        r["__"] = True
+      return r
+
+    for k,v in idx.items():
+      ramap[k] = update_ramap(ramap, v)
+
+    self.read_access_map = ramap
+
     return self.index
 
   def _check(self, keys, branch, flags=None, i=0):
@@ -205,7 +225,7 @@ class PermissionSet(object):
     if "*" in branch:
       j, a = self._check(keys, branch["*"], flags=branch["*"].get("__", flags), i=i+1)
     
-    #print "_check", key, flags, i, ":", p, r, ":", j, a
+    #print "_check", keys, key, flags, i, ":", p, r, ":", j, a
 
     if j is not None:
       if r < a or p is None:
@@ -233,7 +253,7 @@ class PermissionSet(object):
     keys = namespace.keys
     p,g = self._check(keys, self.index) 
     return (p & level) != 0
-      
+
 
   def apply(self, data, path=[]):
     """
@@ -252,12 +272,44 @@ class PermissionSet(object):
     if not isinstance(data, dict):
       return data
 
-    rv = {}
+    empty = {}
+    
+    def _apply(ramap, value, status=False, wc=False):
+      
+      if not isinstance(value, dict):
+        if status:
+          return value
+        else:
+          return None
+      
+      if not wc:
+        status = ramap.get("__",status)
+      
+      rv = {}
+      for k,v in value.items():
+        #print k,v,status,ramap.keys()
+        if isinstance(v, dict): 
+          if k in ramap:
+            r = _apply(ramap[k], v, status=status)
+            if r:
+              rv[k] = r
+          elif "*" in ramap:
+            r = _apply(ramap["*"], v, status=status, wc=True)
+            if r:
+              rv[k] = r
+          elif status:
+            rv[k] = v
+        else:
+          if k in ramap and ramap[k]["__"]:
+            rv[k] = v
+          elif "*" in ramap and ramap["*"]["__"]:
+            rv[k] = v
+          elif status:
+            rv[k] = v
 
-    for k,v in data.items():
-      p = path+[k]
-      if self.check(path+[k], const.PERM_READ):
-        rv[k] = self.apply(v, path=p)
+      return rv
+
+    rv = _apply(self.read_access_map, data) 
 
     return rv
 
