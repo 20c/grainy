@@ -229,10 +229,12 @@ class PermissionSet(object):
             branch[k] = { "__" : parent_p }
           else:
             branch[k] = { "__" : None }
+          branch[k].update(__implicit=True)
 
         branch = branch[k]
         parent_p = branch["__"]
       branch["__"] = p.value
+      branch["__implicit"] = False
 
     self.index = idx
 
@@ -243,7 +245,7 @@ class PermissionSet(object):
     def update_ramap(branch, branch_idx):
       r = {"__":False}
       for k,v in branch_idx.items():
-        if k != "__":
+        if k != "__" and k != "__implicit":
           r[k] = update_ramap(r, v)
 
       if branch_idx["__"] is not None and (branch_idx["__"] & const.PERM_READ) != 0:
@@ -257,7 +259,7 @@ class PermissionSet(object):
 
     return self.index
 
-  def _check(self, keys, branch, flags=None, i=0):
+  def _check(self, keys, branch, flags=None, i=0, explicit=False, l=0):
     
     try:
       key = keys[i]
@@ -268,12 +270,27 @@ class PermissionSet(object):
     r = 0
     j = 0
     a = 0
-    if key in branch:
-      p, r = self._check(keys, branch[key], flags=branch[key].get("__", flags), i=i+1)
-    if "*" in branch:
-      j, a = self._check(keys, branch["*"], flags=branch["*"].get("__", flags), i=i+1)
     
-    #print "_check", keys, key, flags, i, ":", p, r, ":", j, a
+    if not l:
+      l = len(keys)
+
+    if key in branch:
+      if explicit and branch[key].get("__implicit") and i+1 >= l:
+        p, r=  0, 0
+        print "FAILED", branch
+      else:
+        p, r = self._check(keys, branch[key], flags=branch[key].get("__", flags), i=i+1, explicit=explicit, l=l)
+    if "*" in branch:
+      if explicit and branch["*"].get("__implicit") and i+1 >= l:
+        j, a = 0, 0
+        print "FAILED (2)"
+      else:
+        j, a = self._check(keys, branch["*"], flags=branch["*"].get("__", flags), i=i+1, explicit=explicit, l=l)
+    
+    print "_check", keys, key, l, i, ":", p, r, ":", j, a
+
+    if explicit and r == 0 and a == 0:
+      return 0,i
 
     if j is not None:
       if r < a or p is None:
@@ -285,7 +302,7 @@ class PermissionSet(object):
       
       
 
-  def check(self, namespace, level):
+  def check(self, namespace, level, explicit=False):
     """
     Checks if the permset has permission to the specified namespace
     at the specified level
@@ -294,12 +311,14 @@ class PermissionSet(object):
 
     namespace -- permissioning namespace (str) 
     level -- permissioning level (int) (PERM_READ for example)
+    explicit -- require explicitly set permissions to the provided namespace
     """
     
     if not isinstance(namespace, Namespace):
       namespace = Namespace(namespace)
     keys = namespace.keys
-    p,g = self._check(keys, self.index) 
+    p,g = self._check(keys, self.index, explicit=explicit) 
+    print "final", p, g
     return (p & level) != 0
 
 

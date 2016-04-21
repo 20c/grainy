@@ -58,7 +58,40 @@ class TestPermissionSet(object):
 
   def test_update_index(self):
     pset = core.PermissionSet(pdict)
-    expected = {'a': {'__': 1, 'c': {'__': 14}, 'b': {'__': 1, 'c': {'__': 15}, '*': {'__': None, 'd': {'__': 0}}}}, 'b': {'__': 0, 'c': {'__': 1}}}
+    expected = {
+      'a': {
+        '__': 1,
+        '__implicit' : False,
+        'c': {
+          '__implicit' : False,
+          '__': 14
+        }, 
+        'b': {
+          '__': 1, 
+          '__implicit' : True,
+          'c': {
+            '__': 15,
+            '__implicit' : False
+          }, 
+          '*': {
+            '__implicit' : True,
+            '__': None, 
+            'd': {
+              '__implicit' : False,
+              '__': 0
+            }
+          }
+        }
+      }, 
+      'b': {
+        '__implicit' : True,
+        '__': 0, 
+        'c': {
+          '__implicit' : False,
+          '__': 1
+        }
+      }
+    }
 
     print pset.index
     assert pset.index == expected
@@ -119,6 +152,16 @@ class TestPermissionSet(object):
     assert pset.check("e.m.g.b", const.PERM_RW) == True
     assert pset.check("f", const.PERM_WRITE) == False
     assert pset.check("f.g", const.PERM_READ) == True
+
+  def test_check_explicit(self):
+    pset = core.PermissionSet(pdict)
+
+    assert pset.check("a.b", const.PERM_READ, explicit=True) == False
+    assert pset.check("a", const.PERM_READ, explicit=True) == True 
+    assert pset.check("a", const.PERM_WRITE, explicit=True) == False
+    assert pset.check("a.b.c", const.PERM_WRITE, explicit=True) == True
+    assert pset.check("a.b.c", const.PERM_READ, explicit=True) == True
+    
 
   def test_apply(self):
     pset = core.PermissionSet(pdict2)
