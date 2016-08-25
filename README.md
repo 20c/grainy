@@ -10,8 +10,8 @@ granular permissions utility
 
 # Quickstart
 
-    from twentyc.perms.core import PermissionSet
-    from twentyc.perms.const import *
+    from grainy.core import PermissionSet
+    from grainy.const import *
 
     pset = PermissionSet(
       {
@@ -55,7 +55,7 @@ granular permissions utility
 
 You can apply the permissions stored in the permission set to any data dict and data that the permission set does not have READ access to will be removed.
 
-twentyc.perms was created out of a need to apply granular permissions on potentially large dict objects and perform well. 
+grainy was created out of a need to apply granular permissions on potentially large dict objects and perform well. 
 
     # init
     pset = core.PermissionSet(
