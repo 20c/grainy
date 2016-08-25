@@ -277,17 +277,14 @@ class PermissionSet(object):
     if key in branch:
       if explicit and branch[key].get("__implicit") and i+1 >= l:
         p, r=  0, 0
-        print "FAILED", branch
       else:
         p, r = self._check(keys, branch[key], flags=branch[key].get("__", flags), i=i+1, explicit=explicit, l=l)
     if "*" in branch:
       if explicit and branch["*"].get("__implicit") and i+1 >= l:
         j, a = 0, 0
-        print "FAILED (2)"
       else:
         j, a = self._check(keys, branch["*"], flags=branch["*"].get("__", flags), i=i+1, explicit=explicit, l=l)
     
-    print "_check", keys, key, l, i, ":", p, r, ":", j, a
 
     if explicit and r == 0 and a == 0:
       return 0,i
@@ -318,7 +315,6 @@ class PermissionSet(object):
       namespace = Namespace(namespace)
     keys = namespace.keys
     p,g = self._check(keys, self.index, explicit=explicit) 
-    print "final", p, g
     return (p & level) != 0
 
 
@@ -354,7 +350,6 @@ class PermissionSet(object):
       
       rv = {}
       for k,v in value.items():
-        #print k,v,status,ramap.keys()
         if isinstance(v, dict): 
           if k in ramap:
             r = _apply(ramap[k], v, status=status)

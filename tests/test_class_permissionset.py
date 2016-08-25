@@ -201,7 +201,6 @@ class TestPermissionSet(unittest.TestCase):
     }
 
     rv = pset.apply(data)
-    print pset.read_access_map
     self.assertEqual(rv, expected)
 
   @performance_test
@@ -224,8 +223,6 @@ class TestPermissionSet(unittest.TestCase):
     t= time.time()
     cleaned = pset.apply(data)
     diff = time.time() - t
-
-    print "test_performance took %.5f seconds" % diff
 
     self.assertLess(diff, 0.002)
 
