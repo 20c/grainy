@@ -1,41 +1,37 @@
 from grainy import core, const
+import unittest
 
-class TestNamespace(object):
+class TestNamespace(unittest.TestCase):
   
   def test_init(self):
     ns = core.Namespace("a.b.c")
-    assert ns.value == "a.b.c"
+    self.assertEqual(ns.value, "a.b.c")
 
     ns = core.Namespace("a.b.*")
-    assert ns.value == "a.b"
-
-  def test_str_unicode(self):
-    ns = core.Namespace("a.b.c")
-    assert str(ns) == "a.b.c"
-    assert unicode(ns) == u"a.b.c"
+    self.assertEqual(ns.value, "a.b")
 
   def test_iter(self):
     ns = core.Namespace("a.b.c")
-    assert [k for k in ns] == ["a","b","c"]
+    self.assertEqual([k for k in ns], ["a","b","c"])
 
   def test_container(self):
     ns = core.Namespace("a.b.c")
     container, tail = ns.container()
-    assert container == {"a":{"b":{"c":{}}}}
-    assert tail == {}
+    self.assertEqual(container, {"a":{"b":{"c":{}}}})
+    self.assertEqual(tail, {})
   
     container, tail = ns.container({"d":123})
-    assert container == {"a":{"b":{"c":{"d":123}}}}
-    assert tail == {"d":123}
+    self.assertEqual(container, {"a":{"b":{"c":{"d":123}}}})
+    self.assertEqual(tail, {"d":123})
 
   def test_match(self):
     ns = core.Namespace("a.b.c")
-    assert ns.match(["a","b"]) == True
-    assert ns.match(["a"]) == True
-    assert ns.match(["a","*"]) == True
-    assert ns.match(["a","*","c"]) == True 
-    assert ns.match(["a","b","c"]) == True
-    assert ns.match(["a","*","c","d"]) == False
-    assert ns.match(["a","b","c","d"]) == False
-    assert ns.match(["b"]) == False
-    assert ns.match(["a","c"]) == False
+    self.assertEqual(ns.match(["a","b"]), True)
+    self.assertEqual(ns.match(["a"]), True)
+    self.assertEqual(ns.match(["a","*"]), True)
+    self.assertEqual(ns.match(["a","*","c"]), True) 
+    self.assertEqual(ns.match(["a","b","c"]), True)
+    self.assertEqual(ns.match(["a","*","c","d"]), False)
+    self.assertEqual(ns.match(["a","b","c","d"]), False)
+    self.assertEqual(ns.match(["b"]), False)
+    self.assertEqual(ns.match(["a","c"]), False)

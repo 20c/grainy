@@ -1,4 +1,8 @@
-import const
+from builtins import str
+from past.builtins import basestring
+from builtins import object
+import grainy.const as const
+
 class Namespace(object):
   """
   Object representing a permissioning namespace
@@ -149,7 +153,7 @@ class PermissionSet(object):
       for permission in rules:
         self.__add__(permission)
     elif type(rules) == dict:
-      for ns, p in rules.items():
+      for ns, p in list(rules.items()):
         self.__add__(Permission(ns, p))
 
   @property
@@ -157,10 +161,10 @@ class PermissionSet(object):
     """
     Returns list of all namespaces registered in this permission set
     """
-    return self.permissions.keys()
+    return list(self.permissions.keys())
 
   def __iter__(self):
-    for k,v in self.permissions.items():
+    for k,v in list(self.permissions.items()):
       yield v
 
   def __contains__(self, item):
@@ -177,7 +181,7 @@ class PermissionSet(object):
   def __setitem__(self, key, other, reindex=True):
     if isinstance(other, Permission):
       self.permissions[key] = other
-    elif isinstance(other, (int, long)):
+    elif isinstance(other, int):
       self.permissions[key] = Permission(key, other)
     else:
       raise TypeError("Value needs to be a Permission instance or a permission flag")
@@ -205,7 +209,7 @@ class PermissionSet(object):
           }
         )
     """
-    for k,v in permissions.items():
+    for k,v in list(permissions.items()):
       self.__setitem__(k,v,reindex=False)
     self.update_index()
 
@@ -220,7 +224,7 @@ class PermissionSet(object):
     # update index
     
     idx = {}
-    for ns, p in sorted(self.permissions.items()):
+    for ns, p in sorted(self.permissions.items(), key=lambda x:str(x[0])):
       branch = idx
       parent_p = const.PERM_DENY
       for k in p.namespace.keys:
@@ -244,7 +248,7 @@ class PermissionSet(object):
    
     def update_ramap(branch, branch_idx):
       r = {"__":False}
-      for k,v in branch_idx.items():
+      for k,v in list(branch_idx.items()):
         if k != "__" and k != "__implicit":
           r[k] = update_ramap(r, v)
 
@@ -252,7 +256,7 @@ class PermissionSet(object):
         r["__"] = True
       return r
 
-    for k,v in idx.items():
+    for k,v in list(idx.items()):
       ramap[k] = update_ramap(ramap, v)
 
     self.read_access_map = ramap
@@ -349,7 +353,7 @@ class PermissionSet(object):
         status = ramap.get("__",status)
       
       rv = {}
-      for k,v in value.items():
+      for k,v in list(value.items()):
         if isinstance(v, dict): 
           if k in ramap:
             r = _apply(ramap[k], v, status=status)
