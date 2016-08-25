@@ -1,6 +1,8 @@
-from twentyc.perms import core, const
+from grainy import core, const
 import pytest
 import sys
+import unittest
+import json
 
 performance_test = pytest.mark.skipif(
   not pytest.config.getoption("--performance"),
@@ -45,16 +47,16 @@ pdict3 = {
 }
 
 
-class TestPermissionSet(object):
+class TestPermissionSet(unittest.TestCase):
 
   def test_init(self):
     pset = core.PermissionSet([p1,p2])
-    assert pset.permissions["a"] == p1
-    assert pset.permissions["a.b.c"] == p2
+    self.assertEqual(pset.permissions["a"], p1)
+    self.assertEqual(pset.permissions["a.b.c"], p2)
 
     pset = core.PermissionSet(pdict)
-    assert pset.permissions["a"] == p1
-    assert pset.permissions["a.b.c"] == p2
+    self.assertEqual(pset.permissions["a"], p1)
+    self.assertEqual(pset.permissions["a.b.c"], p2)
 
   def test_update_index(self):
     pset = core.PermissionSet(pdict)
@@ -93,27 +95,26 @@ class TestPermissionSet(object):
       }
     }
 
-    print pset.index
-    assert pset.index == expected
+    self.assertEqual(pset.index, expected)
 
   def test_contains(self):
     pset = core.PermissionSet(pdict)
-    assert "a" in pset
-    assert "a.b.c" in pset
-    assert "x" not in pset
+    self.assertIn("a", pset)
+    self.assertIn("a.b.c", pset)
+    self.assertNotIn("x", pset)
 
   def test_update(self):
 
     pset = core.PermissionSet(pdict)
 
     pset.update({"x":const.PERM_READ, "z":core.Permission("z", const.PERM_READ)})
-    assert "a" in pset
-    assert "a.b.c" in pset
-    assert "x" in pset
-    assert "z" in pset
-    
-    assert pset.check("x", const.PERM_READ) == True
-    assert pset.check("z", const.PERM_READ) == True
+    self.assertIn("a", pset)
+    self.assertIn("a.b.c", pset)
+    self.assertIn("x", pset)
+    self.assertIn("z", pset)
+
+    self.assertEqual(pset.check("x", const.PERM_READ), True)
+    self.assertEqual(pset.check("z", const.PERM_READ), True)
     
 
   def test_setitem_delitem(self):
@@ -122,46 +123,44 @@ class TestPermissionSet(object):
     pset["a.b"] = const.PERM_RW
     pset["b"] = const.PERM_READ
 
-    assert pset.permissions["a"].check(const.PERM_READ) == True
-    assert pset.permissions["a.b"].check(const.PERM_WRITE) == True
-    assert pset.permissions["b"].check(const.PERM_READ) == True
+    self.assertEqual(pset.permissions["a"].check(const.PERM_READ), True)
+    self.assertEqual(pset.permissions["a.b"].check(const.PERM_WRITE), True)
+    self.assertEqual(pset.permissions["b"].check(const.PERM_READ), True)
 
     pset["a.b"] = const.PERM_READ
 
-    assert pset.permissions["a.b"].check(const.PERM_WRITE) == False 
+    self.assertEqual(pset.permissions["a.b"].check(const.PERM_WRITE), False)
 
     del pset["b"]
 
-    assert "b" not in pset
+    self.assertNotIn("b", pset)
     
 
   def test_check(self):
     pset = core.PermissionSet(pdict2)
 
-    assert pset.check("a.b", const.PERM_READ) == True
-    assert pset.check("a.b.c", const.PERM_WRITE) == True
-    assert pset.check("a.b.d", const.PERM_READ) == True
-    assert pset.check("a.b.c.d", const.PERM_READ) == False
-    assert pset.check("e.f", const.PERM_READ) == True
-    assert pset.check("e", const.PERM_READ) == False 
-    assert pset.check("e.j.g", const.PERM_WRITE) == True
-    assert pset.check("e.k.g.a", const.PERM_WRITE) == False
-    assert pset.check("e.h.g", const.PERM_READ) == False
-    assert pset.check("e.h.g.a", const.PERM_WRITE) == False
-    assert pset.check("e.m.g.a", const.PERM_WRITE) == False
-    assert pset.check("e.m.g.b", const.PERM_RW) == True
-    assert pset.check("f", const.PERM_WRITE) == False
-    assert pset.check("f.g", const.PERM_READ) == True
+    self.assertEqual(pset.check("a.b", const.PERM_READ), True)
+    self.assertEqual(pset.check("a.b.c", const.PERM_WRITE), True)
+    self.assertEqual(pset.check("a.b.d", const.PERM_READ), True)
+    self.assertEqual(pset.check("a.b.c.d", const.PERM_READ), False)
+    self.assertEqual(pset.check("e.f", const.PERM_READ), True)
+    self.assertEqual(pset.check("e", const.PERM_READ), False )
+    self.assertEqual(pset.check("e.j.g", const.PERM_WRITE), True)
+    self.assertEqual(pset.check("e.k.g.a", const.PERM_WRITE), False)
+    self.assertEqual(pset.check("e.h.g", const.PERM_READ), False)
+    self.assertEqual(pset.check("e.h.g.a", const.PERM_WRITE), False)
+    self.assertEqual(pset.check("e.m.g.a", const.PERM_WRITE), False)
+    self.assertEqual(pset.check("e.m.g.b", const.PERM_RW), True)
+    self.assertEqual(pset.check("f", const.PERM_WRITE), False)
+    self.assertEqual(pset.check("f.g", const.PERM_READ), True)
 
   def test_check_explicit(self):
     pset = core.PermissionSet(pdict)
-
-    assert pset.check("a.b", const.PERM_READ, explicit=True) == False
-    assert pset.check("a", const.PERM_READ, explicit=True) == True 
-    assert pset.check("a", const.PERM_WRITE, explicit=True) == False
-    assert pset.check("a.b.c", const.PERM_WRITE, explicit=True) == True
-    assert pset.check("a.b.c", const.PERM_READ, explicit=True) == True
-    
+    self.assertEqual(pset.check("a.b", const.PERM_READ, explicit=True), False)
+    self.assertEqual(pset.check("a", const.PERM_READ, explicit=True), True )
+    self.assertEqual(pset.check("a", const.PERM_WRITE, explicit=True), False)
+    self.assertEqual(pset.check("a.b.c", const.PERM_WRITE, explicit=True), True)
+    self.assertEqual(pset.check("a.b.c", const.PERM_READ, explicit=True), True)
 
   def test_apply(self):
     pset = core.PermissionSet(pdict2)
@@ -203,7 +202,7 @@ class TestPermissionSet(object):
 
     rv = pset.apply(data)
     print pset.read_access_map
-    assert rv == expected
+    self.assertEqual(rv, expected)
 
   @performance_test
   def test_performance(self):
@@ -228,5 +227,5 @@ class TestPermissionSet(object):
 
     print "test_performance took %.5f seconds" % diff
 
-    assert diff < 0.002
+    self.assertLess(diff, 0.002)
 

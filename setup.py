@@ -1,30 +1,31 @@
-from setuptools import setup
+
+from setuptools import find_packages, setup
+
 
 version = open('facsimile/VERSION').read().strip()
 requirements = open('facsimile/requirements.txt').read().split("\n")
+test_requirements = open('facsimile/requirements-test.txt').read().split("\n")
+
 
 setup(
-    name='twentyc.perms',
-    version=open('facsimile/VERSION').read().rstrip(),
+    name='grainy',
+    version=version,
     author='20C',
     author_email='code@20c.com',
     description='granular permissions utility',
-    long_description=open('README.md').read(),
-    license='LICENSE',
+    long_description='',
+    license='LICENSE.txt',
     classifiers=[
         'Development Status :: 4 - Beta',
-        'Intended Audience :: Developers',
-        'Topic :: Internet',
         'License :: OSI Approved :: Apache Software License',
-        'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    packages=['twentyc.perms'],
-    namespace_packages=['twentyc'],
-    url='https://github.com/20c/twentyc.perms',
-    download_url='https://github.com/20c/twentyc.perms/%s'%version,
-    install_requires=requirements,
+    packages = find_packages(),
     include_package_data=True,
-    maintainer='20C',
-    maintainer_email='code@20c.com',
-    zip_safe=False
+    url='https://github.com/20c/grainy',
+    download_url='https://github.com/20c/grainy/%s' % version,
+
+    install_requires=requirements,
+    test_requires=test_requirements,
+
+    zip_safe=True
 )

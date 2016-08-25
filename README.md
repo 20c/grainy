@@ -1,8 +1,12 @@
-# twentyc.perms
-granular permissions utility framework
+# grainy
 
-# Purpose
-Utility functions to permission out namespaces at various access levels. 
+[![PyPI](https://img.shields.io/pypi/v/grainy.svg?maxAge=3600)](https://pypi.python.org/pypi/grainy)
+[![Travis CI](https://img.shields.io/travis/20c/grainy.svg?maxAge=3600)](https://travis-ci.org/20c/grainy)
+[![Code Health](https://landscape.io/github/20c/grainy/master/landscape.svg?style=flat)](https://landscape.io/github/20c/grainy/master)
+[![Codecov](https://img.shields.io/codecov/c/github/20c/grainy/master.svg?maxAge=3600)](https://codecov.io/github/20c/grainy)
+[![Requires.io](https://img.shields.io/requires/github/20c/grainy.svg?maxAge=3600)](https://requires.io/github/20c/grainy/requirements)
+
+granular permissions utility
 
 # Quickstart
 

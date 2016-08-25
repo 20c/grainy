@@ -220,7 +220,7 @@ class PermissionSet(object):
     # update index
     
     idx = {}
-    for ns, p in self.permissions.items():
+    for ns, p in sorted(self.permissions.items()):
       branch = idx
       parent_p = const.PERM_DENY
       for k in p.namespace.keys:

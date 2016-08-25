@@ -1,4 +1,4 @@
-from twentyc.perms import core, const
+from grainy import core, const
 
 class TestNamespace(object):
   
