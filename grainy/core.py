@@ -87,11 +87,13 @@ class Namespace(object):
 
         root = p = d = {}
         j = 0
+        k = None
         for k in self:
             d[k] = {}
             p = d
             d = d[k]
-        p[k] = data
+        if k is not None:
+            p[k] = data
         return (root, p[k])
 
 
@@ -171,7 +173,7 @@ class PermissionSet(object):
         return list(self.permissions.keys())
 
     def __iter__(self):
-        for k, v in list(self.permissions.items()):
+        for v in list(self.permissions.values()):
             yield v
 
     def __contains__(self, item):
@@ -233,7 +235,7 @@ class PermissionSet(object):
         # update index
 
         idx = {}
-        for ns, p in sorted(self.permissions.items(), key=lambda x: str(x[0])):
+        for _, p in sorted(self.permissions.items(), key=lambda x: str(x[0])):
             branch = idx
             parent_p = const.PERM_DENY
             for k in p.namespace.keys:
@@ -255,18 +257,18 @@ class PermissionSet(object):
 
         ramap = {}
 
-        def update_ramap(branch, branch_idx):
+        def update_ramap(branch_idx):
             r = {"__": False}
             for k, v in list(branch_idx.items()):
                 if k != "__" and k != "__implicit":
-                    r[k] = update_ramap(r, v)
+                    r[k] = update_ramap(v)
 
             if branch_idx["__"] is not None and (branch_idx["__"] & const.PERM_READ) != 0:
                 r["__"] = True
             return r
 
         for k, v in list(idx.items()):
-            ramap[k] = update_ramap(ramap, v)
+            ramap[k] = update_ramap(v)
 
         self.read_access_map = ramap
 
@@ -326,7 +328,7 @@ class PermissionSet(object):
         if not isinstance(namespace, Namespace):
             namespace = Namespace(namespace)
         keys = namespace.keys
-        p, g = self._check(keys, self.index, explicit=explicit)
+        p, _ = self._check(keys, self.index, explicit=explicit)
         return (p & level) != 0
 
     def apply(self, data, path=None):
@@ -348,8 +350,6 @@ class PermissionSet(object):
 
         if not isinstance(data, dict):
             return data
-
-        empty = {}
 
         def _apply(ramap, value, status=False, wc=False):
 
