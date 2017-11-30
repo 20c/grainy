@@ -1,3 +1,8 @@
 *.swp
 *.pyc
 *.egg-info
+release.sh
+.cache
+.coverage
+.tox
+coverage.xml
