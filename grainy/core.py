@@ -313,6 +313,27 @@ class PermissionSet(object):
                 return p, r
         return flags, i
 
+    def get_permissions(self, namespace, explicit=False):
+        """
+        Returns the permissions level for the specified namespace
+
+        Arguments:
+
+        namespace -- permissioning namespace (str)
+        explicit -- require explicitly set permissions to the provided namespace
+
+        Returns:
+
+        int -- permissioning flags
+        """
+
+        if not isinstance(namespace, Namespace):
+            namespace = Namespace(namespace)
+        keys = namespace.keys
+        p, _ = self._check(keys, self.index, explicit=explicit)
+        return p
+
+
     def check(self, namespace, level, explicit=False):
         """
         Checks if the permset has permission to the specified namespace
@@ -323,13 +344,13 @@ class PermissionSet(object):
         namespace -- permissioning namespace (str) 
         level -- permissioning level (int) (PERM_READ for example)
         explicit -- require explicitly set permissions to the provided namespace
+
+        Returns:
+
+        bool
         """
 
-        if not isinstance(namespace, Namespace):
-            namespace = Namespace(namespace)
-        keys = namespace.keys
-        p, _ = self._check(keys, self.index, explicit=explicit)
-        return (p & level) != 0
+        return (self.get_permissions(namespace, explicit=explicit) & level) != 0
 
     def apply(self, data, path=None):
         """
