@@ -5,224 +5,224 @@ import unittest
 import json
 
 performance_test = pytest.mark.skipif(
-  not pytest.config.getoption("--performance"),
-  reason="need --performance option to run"
+    not pytest.config.getoption("--performance"),
+    reason="need --performance option to run"
 )
 
 p1 = core.Permission("a", const.PERM_READ)
 p2 = core.Permission("a.b.c", const.PERM_RW)
 
 pdict = {
-  "a" : const.PERM_READ,
-  "a.b.c" : const.PERM_RW,
-  "a.b.*.d" : const.PERM_DENY,
-  "a.c" : const.PERM_WRITE,
-  "b.c" : const.PERM_READ
+    "a" : const.PERM_READ,
+    "a.b.c" : const.PERM_RW,
+    "a.b.*.d" : const.PERM_DENY,
+    "a.c" : const.PERM_WRITE,
+    "b.c" : const.PERM_READ
 }
 
 
 pdict2 = {
-  "a" : const.PERM_READ,
-  "a.b.c" : const.PERM_RW,
-  "a.b.e" : const.PERM_DENY,
-  "a.b.*.d" : const.PERM_DENY,
-  "e.f" : const.PERM_READ,
-  "e.*.g" : const.PERM_WRITE,
-  "e.*.g.a" : const.PERM_READ,
-  "e.*.g.b" : const.PERM_RW,
-  "e.h.g" : const.PERM_DENY,
-  "f.g" : const.PERM_READ
+    "a" : const.PERM_READ,
+    "a.b.c" : const.PERM_RW,
+    "a.b.e" : const.PERM_DENY,
+    "a.b.*.d" : const.PERM_DENY,
+    "e.f" : const.PERM_READ,
+    "e.*.g" : const.PERM_WRITE,
+    "e.*.g.a" : const.PERM_READ,
+    "e.*.g.b" : const.PERM_RW,
+    "e.h.g" : const.PERM_DENY,
+    "f.g" : const.PERM_READ
 }
 
 pdict3 = {
-  "a.100" : const.PERM_READ,
-  "a.b.c" : const.PERM_RW,
-  "a.b.e" : const.PERM_DENY,
-  "a.b.*.d" : const.PERM_DENY,
-  "e.f" : const.PERM_READ,
-  "e.*.g" : const.PERM_WRITE,
-  "e.*.g.a" : const.PERM_READ,
-  "e.*.g.b" : const.PERM_RW,
-  "e.h.g" : const.PERM_DENY
+    "a.100" : const.PERM_READ,
+    "a.b.c" : const.PERM_RW,
+    "a.b.e" : const.PERM_DENY,
+    "a.b.*.d" : const.PERM_DENY,
+    "e.f" : const.PERM_READ,
+    "e.*.g" : const.PERM_WRITE,
+    "e.*.g.a" : const.PERM_READ,
+    "e.*.g.b" : const.PERM_RW,
+    "e.h.g" : const.PERM_DENY
 }
 
 
 class TestPermissionSet(unittest.TestCase):
 
-  def test_init(self):
-    pset = core.PermissionSet([p1,p2])
-    self.assertEqual(pset.permissions["a"], p1)
-    self.assertEqual(pset.permissions["a.b.c"], p2)
+    def test_init(self):
+        pset = core.PermissionSet([p1,p2])
+        self.assertEqual(pset.permissions["a"], p1)
+        self.assertEqual(pset.permissions["a.b.c"], p2)
 
-    pset = core.PermissionSet(pdict)
-    self.assertEqual(pset.permissions["a"], p1)
-    self.assertEqual(pset.permissions["a.b.c"], p2)
+        pset = core.PermissionSet(pdict)
+        self.assertEqual(pset.permissions["a"], p1)
+        self.assertEqual(pset.permissions["a.b.c"], p2)
 
-  def test_update_index(self):
-    pset = core.PermissionSet(pdict)
-    expected = {
-      'a': {
-        '__': 1,
-        '__implicit' : False,
-        'c': {
-          '__implicit' : False,
-          '__': 14
-        }, 
-        'b': {
-          '__': 1, 
-          '__implicit' : True,
-          'c': {
-            '__': 15,
-            '__implicit' : False
-          }, 
-          '*': {
-            '__implicit' : True,
-            '__': None, 
-            'd': {
-              '__implicit' : False,
-              '__': 0
+    def test_update_index(self):
+        pset = core.PermissionSet(pdict)
+        expected = {
+            'a': {
+                '__': 1,
+                '__implicit' : False,
+                'c': {
+                    '__implicit' : False,
+                    '__': 14
+                }, 
+                'b': {
+                    '__': 1, 
+                    '__implicit' : True,
+                    'c': {
+                        '__': 15,
+                        '__implicit' : False
+                    }, 
+                    '*': {
+                        '__implicit' : True,
+                        '__': None, 
+                        'd': {
+                            '__implicit' : False,
+                            '__': 0
+                        }
+                    }
+                }
+            }, 
+            'b': {
+                '__implicit' : True,
+                '__': 0, 
+                'c': {
+                    '__implicit' : False,
+                    '__': 1
+                }
             }
-          }
         }
-      }, 
-      'b': {
-        '__implicit' : True,
-        '__': 0, 
-        'c': {
-          '__implicit' : False,
-          '__': 1
+
+        self.assertEqual(pset.index, expected)
+
+    def test_contains(self):
+        pset = core.PermissionSet(pdict)
+        self.assertIn("a", pset)
+        self.assertIn("a.b.c", pset)
+        self.assertNotIn("x", pset)
+
+    def test_update(self):
+
+        pset = core.PermissionSet(pdict)
+
+        pset.update({"x":const.PERM_READ, "z":core.Permission("z", const.PERM_READ)})
+        self.assertIn("a", pset)
+        self.assertIn("a.b.c", pset)
+        self.assertIn("x", pset)
+        self.assertIn("z", pset)
+
+        self.assertEqual(pset.check("x", const.PERM_READ), True)
+        self.assertEqual(pset.check("z", const.PERM_READ), True)
+        
+
+    def test_setitem_delitem(self):
+        pset = core.PermissionSet()
+        pset["a"] = const.PERM_READ
+        pset["a.b"] = const.PERM_RW
+        pset["b"] = const.PERM_READ
+
+        self.assertEqual(pset.permissions["a"].check(const.PERM_READ), True)
+        self.assertEqual(pset.permissions["a.b"].check(const.PERM_WRITE), True)
+        self.assertEqual(pset.permissions["b"].check(const.PERM_READ), True)
+
+        pset["a.b"] = const.PERM_READ
+
+        self.assertEqual(pset.permissions["a.b"].check(const.PERM_WRITE), False)
+
+        del pset["b"]
+
+        self.assertNotIn("b", pset)
+        
+
+    def test_check(self):
+        pset = core.PermissionSet(pdict2)
+
+        self.assertEqual(pset.check("a.b", const.PERM_READ), True)
+        self.assertEqual(pset.check("a.b.c", const.PERM_WRITE), True)
+        self.assertEqual(pset.check("a.b.d", const.PERM_READ), True)
+        self.assertEqual(pset.check("a.b.c.d", const.PERM_READ), False)
+        self.assertEqual(pset.check("e.f", const.PERM_READ), True)
+        self.assertEqual(pset.check("e", const.PERM_READ), False )
+        self.assertEqual(pset.check("e.j.g", const.PERM_WRITE), True)
+        self.assertEqual(pset.check("e.k.g.a", const.PERM_WRITE), False)
+        self.assertEqual(pset.check("e.h.g", const.PERM_READ), False)
+        self.assertEqual(pset.check("e.h.g.a", const.PERM_WRITE), False)
+        self.assertEqual(pset.check("e.m.g.a", const.PERM_WRITE), False)
+        self.assertEqual(pset.check("e.m.g.b", const.PERM_RW), True)
+        self.assertEqual(pset.check("f", const.PERM_WRITE), False)
+        self.assertEqual(pset.check("f.g", const.PERM_READ), True)
+
+    def test_check_explicit(self):
+        pset = core.PermissionSet(pdict)
+        self.assertEqual(pset.check("a.b", const.PERM_READ, explicit=True), False)
+        self.assertEqual(pset.check("a", const.PERM_READ, explicit=True), True )
+        self.assertEqual(pset.check("a", const.PERM_WRITE, explicit=True), False)
+        self.assertEqual(pset.check("a.b.c", const.PERM_WRITE, explicit=True), True)
+        self.assertEqual(pset.check("a.b.c", const.PERM_READ, explicit=True), True)
+
+    def test_apply(self):
+        pset = core.PermissionSet(pdict2)
+        data = {
+            "a" : {
+                "b" : {
+                    "c" : {
+                        "A" : True
+                    },
+                    "d" : {
+                        "A" : True
+                    },
+                    "e" : {
+                        "A" : False
+                    }
+                }
+            },
+            "f": {
+                "g" : True
+            }
         }
-      }
-    }
 
-    self.assertEqual(pset.index, expected)
-
-  def test_contains(self):
-    pset = core.PermissionSet(pdict)
-    self.assertIn("a", pset)
-    self.assertIn("a.b.c", pset)
-    self.assertNotIn("x", pset)
-
-  def test_update(self):
-
-    pset = core.PermissionSet(pdict)
-
-    pset.update({"x":const.PERM_READ, "z":core.Permission("z", const.PERM_READ)})
-    self.assertIn("a", pset)
-    self.assertIn("a.b.c", pset)
-    self.assertIn("x", pset)
-    self.assertIn("z", pset)
-
-    self.assertEqual(pset.check("x", const.PERM_READ), True)
-    self.assertEqual(pset.check("z", const.PERM_READ), True)
-    
-
-  def test_setitem_delitem(self):
-    pset = core.PermissionSet()
-    pset["a"] = const.PERM_READ
-    pset["a.b"] = const.PERM_RW
-    pset["b"] = const.PERM_READ
-
-    self.assertEqual(pset.permissions["a"].check(const.PERM_READ), True)
-    self.assertEqual(pset.permissions["a.b"].check(const.PERM_WRITE), True)
-    self.assertEqual(pset.permissions["b"].check(const.PERM_READ), True)
-
-    pset["a.b"] = const.PERM_READ
-
-    self.assertEqual(pset.permissions["a.b"].check(const.PERM_WRITE), False)
-
-    del pset["b"]
-
-    self.assertNotIn("b", pset)
-    
-
-  def test_check(self):
-    pset = core.PermissionSet(pdict2)
-
-    self.assertEqual(pset.check("a.b", const.PERM_READ), True)
-    self.assertEqual(pset.check("a.b.c", const.PERM_WRITE), True)
-    self.assertEqual(pset.check("a.b.d", const.PERM_READ), True)
-    self.assertEqual(pset.check("a.b.c.d", const.PERM_READ), False)
-    self.assertEqual(pset.check("e.f", const.PERM_READ), True)
-    self.assertEqual(pset.check("e", const.PERM_READ), False )
-    self.assertEqual(pset.check("e.j.g", const.PERM_WRITE), True)
-    self.assertEqual(pset.check("e.k.g.a", const.PERM_WRITE), False)
-    self.assertEqual(pset.check("e.h.g", const.PERM_READ), False)
-    self.assertEqual(pset.check("e.h.g.a", const.PERM_WRITE), False)
-    self.assertEqual(pset.check("e.m.g.a", const.PERM_WRITE), False)
-    self.assertEqual(pset.check("e.m.g.b", const.PERM_RW), True)
-    self.assertEqual(pset.check("f", const.PERM_WRITE), False)
-    self.assertEqual(pset.check("f.g", const.PERM_READ), True)
-
-  def test_check_explicit(self):
-    pset = core.PermissionSet(pdict)
-    self.assertEqual(pset.check("a.b", const.PERM_READ, explicit=True), False)
-    self.assertEqual(pset.check("a", const.PERM_READ, explicit=True), True )
-    self.assertEqual(pset.check("a", const.PERM_WRITE, explicit=True), False)
-    self.assertEqual(pset.check("a.b.c", const.PERM_WRITE, explicit=True), True)
-    self.assertEqual(pset.check("a.b.c", const.PERM_READ, explicit=True), True)
-
-  def test_apply(self):
-    pset = core.PermissionSet(pdict2)
-    
-    data = {
-      "a" : {
-        "b" : {
-          "c" : {
-            "A" : True
-          },
-          "d" : {
-            "A" : True
-          },
-          "e" : {
-            "A" : False
-          }
+        expected = {
+            "a" : {
+                "b" : {
+                    "c" : {
+                        "A" : True
+                    },
+                    "d" : {
+                        "A" : True
+                    }
+                }
+            },
+            "f": {
+                "g" : True
+            }
         }
-      },
-      "f": {
-        "g" : True
-      }
-    }
 
-    expected = {
-      "a" : {
-        "b" : {
-          "c" : {
-            "A" : True
-          },
-          "d" : {
-            "A" : True
-          }
+        rv = pset.apply(data)
+        self.assertEqual(rv, expected)
+
+
+    @performance_test
+    def test_performance(self):
+
+        def mkdataset(depth=3):
+            depth = depth - 1
+            if depth <= 0:
+                return
+            return dict([(str(k),mkdataset(depth=depth)) for k in range(1,1000)])
+        data = {
+            "a" : mkdataset(3),
+            "b" : mkdataset(3)
         }
-      },
-      "f": {
-        "g" : True
-      }
-    }
 
-    rv = pset.apply(data)
-    self.assertEqual(rv, expected)
+        pset = core.PermissionSet(pdict3)
 
-  @performance_test
-  def test_performance(self):
+        import time
 
-    def mkdataset(depth=3):
-      depth = depth - 1
-      if depth <= 0:
-        return
-      return dict([(str(k),mkdataset(depth=depth)) for k in range(1,1000)])
-    data = {
-      "a" : mkdataset(3),
-      "b" : mkdataset(3)
-    }
+        t= time.time()
+        cleaned = pset.apply(data)
+        diff = time.time() - t
 
-    pset = core.PermissionSet(pdict3)
-
-    import time
-
-    t= time.time()
-    cleaned = pset.apply(data)
-    diff = time.time() - t
-
-    self.assertLess(diff, 0.002)
+        self.assertLess(diff, 0.002)
 
