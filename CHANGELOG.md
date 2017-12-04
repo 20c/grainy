@@ -9,6 +9,13 @@
 ### Removed
 ### Security
 
+## 1.2.0
+
+### Added
+
+- namespace handlers
+- Support applying permissions to nested lists
+
 ## 1.1.0
 
 ### Added
