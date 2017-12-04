@@ -3,6 +3,10 @@ from past.builtins import basestring
 from builtins import object
 import grainy.const as const
 
+def list_namespace_handler(row, idx):
+    if isinstance(row, dict):
+        return row.get("id", row.get("name", str(idx)))
+    return idx
 
 class Namespace(object):
     """
@@ -34,7 +38,7 @@ class Namespace(object):
         self.keys = [k for k in self]
         self.length = len(self.keys)
 
-    def match(self, keys):
+    def match(self, keys, partial=True):
         """
         Check if the value of this namespace is matched by
         keys
@@ -55,6 +59,8 @@ class Namespace(object):
             ns.match(["b","b","c"]) #False
 
         """
+        if not partial and len(keys) != self.length:
+            return False
         c = 0
         for k in keys:
             if c >= self.length:
@@ -63,6 +69,7 @@ class Namespace(object):
             if a != "*" and k != "*" and k != a:
                 return False
             c += 1
+
         return True
 
     def container(self, data=None):
@@ -157,6 +164,7 @@ class PermissionSet(object):
         self.permissions = {}
         self.index = {}
         self.read_access_map = {}
+        self.namespace_handlers = {}
 
         if type(rules) == list:
             for permission in rules:
@@ -205,6 +213,14 @@ class PermissionSet(object):
             raise KeyError(
                 "No permission registered under namespace '%s'" % namespace)
         self.update_index()
+
+    def handle_namespace(self, path, handler):
+        if not isinstance(path, Namespace):
+            path = Namespace(path)
+        self.namespace_handlers[str(path)] = {
+            "namespace" : path,
+            "handler" : handler
+        }
 
     def update(self, permissions):
         """
@@ -372,9 +388,23 @@ class PermissionSet(object):
         if not isinstance(data, dict):
             return data
 
-        def _apply(ramap, value, status=False, wc=False):
+        def _enumerate(value):
+            if isinstance(value, list):
+                for k, v in enumerate(value):
+                    yield k, v
+            elif isinstance(value, dict):
+                for k, v in value.items():
+                    yield k, v
 
-            if not isinstance(value, dict):
+        def _set(container, key, value):
+            if isinstance(container, list):
+                container.append(value)
+            else:
+                container[key] = value
+
+        def _apply(ramap, value, status=False, wc=False, path=[]):
+
+            if not isinstance(value, dict) and not isinstance(value, list):
                 if status:
                     return value
                 else:
@@ -383,26 +413,42 @@ class PermissionSet(object):
             if not wc:
                 status = ramap.get("__", status)
 
-            rv = {}
-            for k, v in list(value.items()):
-                if isinstance(v, dict):
+            handler = None
+            if path and self.namespace_handlers:
+                namespace = Namespace(path)
+                for _handler in self.namespace_handlers.values():
+                    if namespace.match(_handler.get("namespace").keys, partial=False):
+                        handler = _handler.get("handler")
+                        break
+
+            if isinstance(value, list):
+                if not handler:
+                    handler = list_namespace_handler
+                rv = []
+            else:
+                rv = {}
+
+            for k, v in _enumerate(value):
+                if handler:
+                    k = handler(v, k)
+                if isinstance(v, dict) or isinstance(v, list):
                     if k in ramap:
-                        r = _apply(ramap[k], v, status=status)
+                        r = _apply(ramap[k], v, status=status, path=path+[k])
                         if r:
-                            rv[k] = r
+                            _set(rv, k, r)
                     elif "*" in ramap:
-                        r = _apply(ramap["*"], v, status=status, wc=True)
+                        r = _apply(ramap["*"], v, status=status, wc=True, path=path+[k])
                         if r:
-                            rv[k] = r
+                            _set(rv, k, r)
                     elif status:
-                        rv[k] = v
+                        _set(rv, k, v)
                 else:
                     if k in ramap and ramap[k]["__"]:
-                        rv[k] = v
+                        _set(rv, k, v)
                     elif "*" in ramap and ramap["*"]["__"]:
-                        rv[k] = v
+                        _set(rv, k, v)
                     elif status:
-                        rv[k] = v
+                        _set(rv, k, v)
 
             return rv
 

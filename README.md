@@ -108,3 +108,61 @@ grainy was created out of a need to apply granular permissions on potentially la
 
     rv = pset.apply(data)
     assert rv == expected
+
+As of version 1.2 it is also possible to apply permissions to lists using namespace handlers
+
+    pset = core.PermissionSet({
+        "a.b" : const.PERM_READ,
+        "x" : const.PERM_READ,
+        "x.z" : const.PERM_DENY,
+        "nested.*.data.public" : const.PERM_READ
+    })
+
+    data= {
+        "a" : [
+            { "id" : "b" },
+            { "id" : "c" }
+        ],
+        "x" : [
+            { "custom" : "y" },
+            { "custom" : "z" }
+        ],
+        "nested" : [
+            {
+                "data" : [
+                    {
+                        "level" : "public",
+                        "some" : "data"
+                    },
+                    {
+                        "level" : "private",
+                        "sekret" : "data"
+                    }
+                ]
+            }
+        ]
+    }
+
+    expected = {
+        "a" : [
+            { "id" : "b" }
+        ],
+        "nested" : [
+            {
+                "data" : [
+                    { "level" : "public", "some" : "data" }
+                ]
+            }
+        ],
+        "x" : [
+            { "custom" : "y" }
+        ]
+    }
+
+    pset.handle_namespace("x", lambda row,idx: row["custom"])
+    pset.handle_namespace("nested.*.data", lambda row,idx: row["level"])
+
+    rv = pset.apply(data)
+    self.assertEqual(rv, expected)
+
+

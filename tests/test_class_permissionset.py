@@ -46,6 +46,13 @@ pdict3 = {
     "e.h.g" : const.PERM_DENY
 }
 
+pdict4 = {
+    "a.b" : const.PERM_READ,
+    "x" : const.PERM_READ,
+    "x.z" : const.PERM_DENY,
+    "nested.*.data.public" : const.PERM_READ
+}
+
 
 class TestPermissionSet(unittest.TestCase):
 
@@ -201,6 +208,56 @@ class TestPermissionSet(unittest.TestCase):
 
         rv = pset.apply(data)
         self.assertEqual(rv, expected)
+
+    def test_apply_nested_lists(self):
+        pset = core.PermissionSet(pdict4)
+        data= {
+            "a" : [
+                { "id" : "b" },
+                { "id" : "c" }
+            ],
+            "x" : [
+                { "custom" : "y" },
+                { "custom" : "z" }
+            ],
+            "nested" : [
+                {
+                    "data" : [
+                        {
+                            "level" : "public",
+                            "some" : "data"
+                        },
+                        {
+                            "level" : "private",
+                            "sekret" : "data"
+                        }
+                    ]
+                }
+            ]
+        }
+
+        expected = {
+            "a" : [
+                { "id" : "b" }
+            ],
+            "nested" : [
+                {
+                    "data" : [
+                        { "level" : "public", "some" : "data" }
+                    ]
+                }
+            ],
+            "x" : [
+                { "custom" : "y" }
+            ]
+        }
+
+        pset.handle_namespace("x", lambda row,idx: row["custom"])
+        pset.handle_namespace("nested.*.data", lambda row,idx: row["level"])
+
+        rv = pset.apply(data)
+        self.assertEqual(rv, expected)
+
 
 
     @performance_test
