@@ -40,9 +40,9 @@ granular permissions utility
 # Setting and Deleting
 
     pset["a.b"] = const.PERM_READ
-    
+
     del pset["a.b"]
-    
+
     pset.update(
       {
         "a.b" : const.PERM_READ
@@ -55,7 +55,7 @@ granular permissions utility
 
 You can apply the permissions stored in the permission set to any data dict and data that the permission set does not have READ access to will be removed.
 
-grainy was created out of a need to apply granular permissions on potentially large dict objects and perform well. 
+grainy was created out of a need to apply granular permissions on potentially large dict objects and perform well.
 
     # init
     pset = core.PermissionSet(
@@ -67,7 +67,7 @@ grainy was created out of a need to apply granular permissions on potentially la
         "f.g" : const.PERM_READ
       }
     )
-    
+
     # original data
     data = {
       "a" : {
