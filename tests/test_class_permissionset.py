@@ -67,27 +67,27 @@ class TestPermissionSet(unittest.TestCase):
                 'c': {
                     '__implicit' : False,
                     '__': 14
-                }, 
+                },
                 'b': {
-                    '__': 1, 
+                    '__': 1,
                     '__implicit' : True,
                     'c': {
                         '__': 15,
                         '__implicit' : False
-                    }, 
+                    },
                     '*': {
                         '__implicit' : True,
-                        '__': None, 
+                        '__': None,
                         'd': {
                             '__implicit' : False,
                             '__': 0
                         }
                     }
                 }
-            }, 
+            },
             'b': {
                 '__implicit' : True,
-                '__': 0, 
+                '__': 0,
                 'c': {
                     '__implicit' : False,
                     '__': 1
@@ -115,7 +115,7 @@ class TestPermissionSet(unittest.TestCase):
 
         self.assertEqual(pset.check("x", const.PERM_READ), True)
         self.assertEqual(pset.check("z", const.PERM_READ), True)
-        
+
 
     def test_setitem_delitem(self):
         pset = core.PermissionSet()
@@ -134,7 +134,7 @@ class TestPermissionSet(unittest.TestCase):
         del pset["b"]
 
         self.assertNotIn("b", pset)
-        
+
 
     def test_check(self):
         pset = core.PermissionSet(pdict2)
