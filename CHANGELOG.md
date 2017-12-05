@@ -10,6 +10,7 @@
 ### Changed
 
 - PermissionSet.apply now uses the new Applicator class
+- Renamed core.list_namespace_handler to core.list_key_handler
 
 ### Deprecated
 ### Removed

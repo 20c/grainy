@@ -3,7 +3,7 @@ from past.builtins import basestring
 from builtins import object
 import grainy.const as const
 
-def list_namespace_handler(row, idx):
+def list_key_handler(row, idx):
     if isinstance(row, dict):
         return row.get("id", row.get("name", str(idx)))
     return idx
@@ -449,7 +449,7 @@ class Applicator(object):
 
             if isinstance(value, list):
                 if not key_handler:
-                    key_handler = list_namespace_handler
+                    key_handler = list_key_handler
                 rv = []
             else:
                 rv = {}
