@@ -252,10 +252,10 @@ class TestPermissionSet(unittest.TestCase):
             ]
         }
 
-        pset.handle_namespace("x", lambda row,idx: row["custom"])
-        pset.handle_namespace("nested.*.data", lambda row,idx: row["level"])
-
-        rv = pset.apply(data)
+        applicator = core.Applicator(pset)
+        applicator.handler("x", key=lambda row,idx: row["custom"])
+        applicator.handler("nested.*.data", key=lambda row,idx: row["level"])
+        rv = pset.apply(data, applicator=applicator)
         self.assertEqual(rv, expected)
 
 

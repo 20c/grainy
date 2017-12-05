@@ -3,10 +3,19 @@
 
 ## [Unreleased]
 ### Added
+
+- Applicator class
+
 ### Fixed
 ### Changed
+
+- PermissionSet.apply now uses the new Applicator class
+
 ### Deprecated
 ### Removed
+
+- PermissionSet.handle_namespace (Replaced by Applicator class)
+
 ### Security
 
 ## 1.2.0

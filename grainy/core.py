@@ -164,7 +164,6 @@ class PermissionSet(object):
         self.permissions = {}
         self.index = {}
         self.read_access_map = {}
-        self.namespace_handlers = {}
 
         if type(rules) == list:
             for permission in rules:
@@ -213,14 +212,6 @@ class PermissionSet(object):
             raise KeyError(
                 "No permission registered under namespace '%s'" % namespace)
         self.update_index()
-
-    def handle_namespace(self, path, handler):
-        if not isinstance(path, Namespace):
-            path = Namespace(path)
-        self.namespace_handlers[str(path)] = {
-            "namespace" : path,
-            "handler" : handler
-        }
 
     def update(self, permissions):
         """
@@ -368,6 +359,39 @@ class PermissionSet(object):
 
         return (self.get_permissions(namespace, explicit=explicit) & level) != 0
 
+    def apply(self, data, path=None, applicator=None):
+        """
+        Apply permissions in this set to the provided data, effectively
+        removing all keys from it are not permissioned to be viewed
+
+        Arguments:
+
+        data -- dict of data 
+
+        Returns:
+
+        Cleaned data
+        """
+
+        return (applicator or Applicator(self)).apply(data, path=path)
+
+
+class Applicator(object):
+
+    handlers = {}
+
+    def __init__(self, pset):
+        self.pset = pset
+
+    def handler(self, path, key=None, explicit=False):
+        if not isinstance(path, Namespace):
+            path = Namespace(path)
+        self.handlers[str(path)] = {
+            "namespace" : path,
+            "key" : key,
+            "explicit" : explicit
+        }
+
     def apply(self, data, path=None):
         """
         Apply permissions in this set to the provided data, effectively
@@ -414,23 +438,25 @@ class PermissionSet(object):
                 status = ramap.get("__", status)
 
             handler = None
-            if path and self.namespace_handlers:
+            key_handler = None
+            if path and self.handlers:
                 namespace = Namespace(path)
-                for _handler in self.namespace_handlers.values():
+                for _handler in self.handlers.values():
                     if namespace.match(_handler.get("namespace").keys, partial=False):
-                        handler = _handler.get("handler")
+                        handler = _handler
+                        key_handler = handler.get("key")
                         break
 
             if isinstance(value, list):
-                if not handler:
-                    handler = list_namespace_handler
+                if not key_handler:
+                    key_handler = list_namespace_handler
                 rv = []
             else:
                 rv = {}
 
             for k, v in _enumerate(value):
-                if handler:
-                    k = handler(v, k)
+                if key_handler:
+                    k = key_handler(v, k)
                 if isinstance(v, dict) or isinstance(v, list):
                     if k in ramap:
                         r = _apply(ramap[k], v, status=status, path=path+[k])
@@ -452,6 +478,8 @@ class PermissionSet(object):
 
             return rv
 
-        rv = _apply(self.read_access_map, data)
+        rv = _apply(self.pset.read_access_map, data)
 
         return rv
+
+
