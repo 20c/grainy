@@ -159,10 +159,11 @@ As of version 1.2 it is also possible to apply permissions to lists using namesp
         ]
     }
 
-    pset.handle_namespace("x", lambda row,idx: row["custom"])
-    pset.handle_namespace("nested.*.data", lambda row,idx: row["level"])
+    applicator = core.Applicator()
+    applicator.handle("x", key=lambda row,idx: row["custom"])
+    applicator.handle("nested.*.data", key=lambda row,idx: row["level"])
 
-    rv = pset.apply(data)
+    rv = pset.apply(data, applicator=applicator)
     self.assertEqual(rv, expected)
 
 
