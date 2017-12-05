@@ -209,6 +209,62 @@ class TestPermissionSet(unittest.TestCase):
         rv = pset.apply(data)
         self.assertEqual(rv, expected)
 
+    def test_apply_explicit(self):
+#pdict = {
+#    "a" : const.PERM_READ,
+#    "a.b.c" : const.PERM_RW,
+#    "a.b.*.d" : const.PERM_DENY,
+#    "a.c" : const.PERM_WRITE,
+#    "b.c" : const.PERM_READ
+#}
+        pset = core.PermissionSet(pdict)
+
+        data = {
+            "a" : {
+                "b": {
+                    "c": True,
+                    "d": False,
+                    "e": True,
+                    "f" : { "something" : "else"}
+                }
+            }
+        }
+
+        expected = {
+            "a" : {
+                "b" : {
+                    "c": True,
+                    "e": True
+                }
+            }
+        }
+
+        applicator = core.Applicator(pset)
+        applicator.handler("a.b.d", explicit=True)
+        applicator.handler("a.b.f", explicit=True)
+        rv = pset.apply(data, applicator=applicator)
+        self.assertEqual(rv, expected)
+
+        expected = {
+            "a" : {
+                "b" : {
+                    "c": True,
+                    "d": False,
+                    "e": True,
+                    "f" : { "something" : "else" }
+                }
+            }
+        }
+
+        print("vla")
+
+        pset["a.b.d"] = const.PERM_READ
+        pset["a.b.f"] = const.PERM_READ
+        rv = pset.apply(data, applicator=applicator)
+        self.assertEqual(rv, expected)
+
+
+
     def test_apply_nested_lists(self):
         pset = core.PermissionSet(pdict4)
         data= {
@@ -225,7 +281,10 @@ class TestPermissionSet(unittest.TestCase):
                     "data" : [
                         {
                             "level" : "public",
-                            "some" : "data"
+                            "some" : "data",
+                            "explicit" : {
+                                "sekret" : "data"
+                            }
                         },
                         {
                             "level" : "private",
@@ -255,6 +314,7 @@ class TestPermissionSet(unittest.TestCase):
         applicator = core.Applicator(pset)
         applicator.handler("x", key=lambda row,idx: row["custom"])
         applicator.handler("nested.*.data", key=lambda row,idx: row["level"])
+        applicator.handler("nested.*.data.public.explicit", explicit=True)
         rv = pset.apply(data, applicator=applicator)
         self.assertEqual(rv, expected)
 

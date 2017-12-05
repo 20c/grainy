@@ -373,7 +373,12 @@ class PermissionSet(object):
         Cleaned data
         """
 
-        return (applicator or Applicator(self)).apply(data, path=path)
+        if applicator:
+            applicator.pset = self
+        else:
+            applicator = Applicator(self)
+
+        return applicator.apply(data, path=path)
 
 
 class Applicator(object):
@@ -428,6 +433,7 @@ class Applicator(object):
 
         def _apply(ramap, value, status=False, wc=False, path=[]):
 
+
             if not isinstance(value, dict) and not isinstance(value, list):
                 if status:
                     return value
@@ -469,16 +475,37 @@ class Applicator(object):
                     elif status:
                         _set(rv, k, v)
                 else:
-                    if k in ramap and ramap[k]["__"]:
-                        _set(rv, k, v)
-                    elif "*" in ramap and ramap["*"]["__"]:
+                    if k in ramap:
+                        if ramap[k].get("__", True):
+                            _set(rv, k, v)
+                    elif "*" in ramap and ramap["*"].get("__", True):
                         _set(rv, k, v)
                     elif status:
                         _set(rv, k, v)
 
             return rv
 
+        # loop through all the handlers that specify the `explicit` arguments
+        # and temprorarily add deny rules for those to the targeted permissionset
+        tmpns = {}
+        for ns, handler in self.handlers.items():
+            if handler.get("explicit"):
+                p = self.pset.get_permissions(ns)
+                if p & const.PERM_READ:
+                    if ns in self.pset.permissions:
+                        continue
+                    tmpns[ns] = p
+                    self.pset[ns] = const.PERM_DENY
+
+        # apply permissions
         rv = _apply(self.pset.read_access_map, data)
+
+        # remove temporarily added deny rules 
+        for ns, p in tmpns.items():
+            if p is None:
+                del self.pset[ns]
+            else:
+                self.pset[ns] = p
 
         return rv
 
