@@ -5,6 +5,7 @@
 ### Added
 
 - Applicator class
+- Way to require explicit namespaces when applying permissions to datasets
 
 ### Fixed
 ### Changed
