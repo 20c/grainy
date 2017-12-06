@@ -2,13 +2,20 @@ from grainy import core, const
 import unittest
 
 class TestNamespace(unittest.TestCase):
-    
+
     def test_init(self):
         ns = core.Namespace("a.b.c")
         self.assertEqual(ns.value, "a.b.c")
 
         ns = core.Namespace("a.b.*")
         self.assertEqual(ns.value, "a.b")
+
+        ns = core.Namespace(["a","b","c"])
+        self.assertEqual(ns.value, "a.b.c")
+
+        ns = core.Namespace(["a","b",1])
+        self.assertEqual(ns.value, "a.b.1")
+
 
     def test_iter(self):
         ns = core.Namespace("a.b.c")
@@ -19,7 +26,7 @@ class TestNamespace(unittest.TestCase):
         container, tail = ns.container()
         self.assertEqual(container, {"a":{"b":{"c":{}}}})
         self.assertEqual(tail, {})
-    
+
         container, tail = ns.container({"d":123})
         self.assertEqual(container, {"a":{"b":{"c":{"d":123}}}})
         self.assertEqual(tail, {"d":123})

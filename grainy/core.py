@@ -31,7 +31,7 @@ class Namespace(object):
 
     def set(self, value):
         if isinstance(value, list):
-            value = ".".join(value)
+            value = ".".join([str(v) for v in value])
         if len(value) > 2 and value[-2:] == ".*":
             value = value[:-2]
         self.value = value

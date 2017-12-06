@@ -9,6 +9,11 @@
 ### Removed
 ### Security
 
+## 1.3.2
+
+### Fixed
+
+- Passing a number as one of the path components during Namespace.__init__ will no longer fail with a TypeError
 
 ## 1.3.1
 
