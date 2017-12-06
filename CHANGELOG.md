@@ -4,6 +4,7 @@
 ## [Unreleased]
 ### Added
 ### Fixed
+- fix issue in Applicator.apply with explicitly required namespaces and wildcard permissions
 ### Changed
 ### Deprecated
 ### Removed
