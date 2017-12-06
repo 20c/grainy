@@ -489,10 +489,16 @@ class Applicator(object):
             if handler.get("explicit"):
                 p = self.pset.get_permissions(ns)
                 if p & const.PERM_READ:
-                    if ns in self.pset.permissions:
+                    exists = False
+                    for _ns in self.pset.namespaces:
+                        if Namespace(_ns).match(Namespace(ns).keys, partial=False):
+                            exists = True
+                            break
+                    if exists:
                         continue
                     tmpns[ns] = p
                     self.pset[ns] = const.PERM_DENY
+
 
         # apply permissions
         rv = _apply(self.pset.read_access_map, data)
