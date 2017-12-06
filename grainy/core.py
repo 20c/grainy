@@ -247,10 +247,7 @@ class PermissionSet(object):
             parent_p = const.PERM_DENY
             for k in p.namespace.keys:
                 if not k in branch:
-                    if k != "*":
-                        branch[k] = {"__": parent_p}
-                    else:
-                        branch[k] = {"__": None}
+                    branch[k] = {"__": parent_p}
                     branch[k].update(__implicit=True)
 
                 branch = branch[k]
@@ -463,6 +460,7 @@ class Applicator(object):
             for k, v in _enumerate(value):
                 if key_handler:
                     k = key_handler(v, k)
+                k = str(k)
                 if isinstance(v, dict) or isinstance(v, list):
                     if k in ramap:
                         r = _apply(ramap[k], v, status=status, path=path+[k])
