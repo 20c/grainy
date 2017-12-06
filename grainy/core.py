@@ -380,10 +380,9 @@ class PermissionSet(object):
 
 class Applicator(object):
 
-    handlers = {}
-
     def __init__(self, pset):
         self.pset = pset
+        self.handlers = {}
 
     def handler(self, path, key=None, explicit=False):
         if not isinstance(path, Namespace):
