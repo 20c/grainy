@@ -9,6 +9,13 @@
 ### Removed
 ### Security
 
+## 1.3.3
+
+### Fixed
+
+- Issue where wildcard permissions would not correctly inherit from parent permission
+- Issue with numeric namespace elements during Applicator.apply
+
 ## 1.3.2
 
 ### Fixed
