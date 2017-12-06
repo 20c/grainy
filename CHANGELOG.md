@@ -9,6 +9,12 @@
 ### Removed
 ### Security
 
+## 1.3.4
+
+### Fixed
+
+- Applicator.handlers made instanced property
+
 ## 1.3.3
 
 ### Fixed
