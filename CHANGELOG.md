@@ -4,11 +4,16 @@
 ## [Unreleased]
 ### Added
 ### Fixed
-- fix issue in Applicator.apply with explicitly required namespaces and wildcard permissions
 ### Changed
 ### Deprecated
 ### Removed
 ### Security
+
+## 1.3.5
+
+### Fixed
+
+- Issue in Applicator.apply with explicitly required namespaces and wildcard permissions
 
 ## 1.3.4
 
