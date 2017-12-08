@@ -9,6 +9,13 @@
 ### Removed
 ### Security
 
+## 1.3.6
+
+### Added
+
+- Namespace.__add__
+- Namespace.__iadd__
+
 ## 1.3.5
 
 ### Fixed
