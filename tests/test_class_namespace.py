@@ -16,6 +16,17 @@ class TestNamespace(unittest.TestCase):
         ns = core.Namespace(["a","b",1])
         self.assertEqual(ns.value, "a.b.1")
 
+    def test_append(self):
+        a = core.Namespace("a.b")
+        b = core.Namespace("c.d")
+        c = core.Namespace("x.y")
+
+        self.assertEqual( (a+b).keys, ["a","b","c","d"])
+
+        c += b
+
+        self.assertEqual( c.keys, ["x","y","c","d"])
+
 
     def test_iter(self):
         ns = core.Namespace("a.b.c")

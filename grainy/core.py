@@ -29,6 +29,15 @@ class Namespace(object):
     def __eq__(self, other):
         return str(self) == str(other)
 
+    def __add__(self, other):
+        if not isinstance(other, Namespace):
+            raise NotImplemented()
+
+        return Namespace(self.keys + other.keys)
+
+    def __iadd__(self, other):
+        return self.__add__(other)
+
     def set(self, value):
         if isinstance(value, list):
             value = ".".join([str(v) for v in value])
