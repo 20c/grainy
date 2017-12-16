@@ -1,3 +1,4 @@
+import six
 from builtins import str
 from past.builtins import basestring
 from builtins import object
@@ -206,7 +207,7 @@ class PermissionSet(object):
     def __setitem__(self, key, other, reindex=True):
         if isinstance(other, Permission):
             self.permissions[key] = other
-        elif isinstance(other, int):
+        elif isinstance(other, six.integer_types):
             self.permissions[key] = Permission(key, other)
         else:
             raise TypeError(

@@ -9,6 +9,12 @@
 ### Removed
 ### Security
 
+## 1.3.7
+
+### Fixed
+
+- allow passing of `long` values for permissions in PermissionSet.__setitem__
+
 ## 1.3.6
 
 ### Added
