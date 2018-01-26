@@ -120,7 +120,7 @@ class Permission(object):
 
     Arguments:
 
-    namespace -- string or Namespace instance defining the namespace 
+    namespace -- string or Namespace instance defining the namespace
     value -- permission bitmask
     """
 
@@ -355,7 +355,7 @@ class PermissionSet(object):
 
         Arguments:
 
-        namespace -- permissioning namespace (str) 
+        namespace -- permissioning namespace (str)
         level -- permissioning level (int) (PERM_READ for example)
         explicit -- require explicitly set permissions to the provided namespace
 
@@ -373,7 +373,7 @@ class PermissionSet(object):
 
         Arguments:
 
-        data -- dict of data 
+        data -- dict of data
 
         Returns:
 
@@ -410,7 +410,7 @@ class Applicator(object):
 
         Arguments:
 
-        data -- dict of data 
+        data -- dict of data
 
         Returns:
 
@@ -513,7 +513,7 @@ class Applicator(object):
         # apply permissions
         rv = _apply(self.pset.read_access_map, data)
 
-        # remove temporarily added deny rules 
+        # remove temporarily added deny rules
         for ns, p in tmpns.items():
             if p is None:
                 del self.pset[ns]

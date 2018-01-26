@@ -47,7 +47,7 @@ class TestNamespace(unittest.TestCase):
         self.assertEqual(ns.match(["a","b"]), True)
         self.assertEqual(ns.match(["a"]), True)
         self.assertEqual(ns.match(["a","*"]), True)
-        self.assertEqual(ns.match(["a","*","c"]), True) 
+        self.assertEqual(ns.match(["a","*","c"]), True)
         self.assertEqual(ns.match(["a","b","c"]), True)
         self.assertEqual(ns.match(["a","*","c","d"]), False)
         self.assertEqual(ns.match(["a","b","c","d"]), False)
