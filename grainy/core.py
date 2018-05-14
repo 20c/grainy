@@ -9,6 +9,36 @@ def list_key_handler(row, idx):
         return row.get("id", row.get("name", str(idx)))
     return idx
 
+def int_flags(flags, mapper=const.PERM_STRING_MAP):
+    """
+    Converts string permission flags into integer permission flags as
+    specified in const.PERM_STRING_MAP
+    Arguments:
+        - flags <str>: one or more flags
+            For example: "crud" or "ru" or "r"
+        - mapper <list=const.PERM_STRING_MAP>: a list containing tuples mapping
+            int permission flag to string permission flag. If not specified will
+            default to const.PERM_STRING_MAP.
+    Returns:
+        - int
+    """
+
+    r = 0
+    if not flags:
+        return r
+
+    if isinstance(flags, six.integer_types):
+        return flags
+
+    if not isinstance(flags, six.string_types):
+        raise TypeError("`flags` needs to be a string or integer type")
+
+    for f in flags:
+        for f_i, f_s in mapper:
+            if f_s == f:
+                r = r | f_i
+    return r
+
 class Namespace(object):
     """
     Object representing a permissioning namespace

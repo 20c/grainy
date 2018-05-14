@@ -3,6 +3,10 @@
 
 ## [Unreleased]
 ### Added
+
+- `const.PERM_STRING_MAP` to allow mapping string flags to integer flags
+- `int_flags` function to allow converting string flags to integer flags
+
 ### Fixed
 ### Changed
 ### Deprecated
