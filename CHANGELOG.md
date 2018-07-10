@@ -3,15 +3,18 @@
 
 ## [Unreleased]
 ### Added
-
-- `const.PERM_STRING_MAP` to allow mapping string flags to integer flags
-- `int_flags` function to allow converting string flags to integer flags
-
 ### Fixed
 ### Changed
 ### Deprecated
 ### Removed
 ### Security
+
+## 1.4.0
+
+### Added
+
+- `const.PERM_STRING_MAP` to allow mapping string flags to integer flags
+- `int_flags` function to allow converting string flags to integer flags
 
 ## 1.3.7
 
