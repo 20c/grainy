@@ -10,7 +10,8 @@ granular permissions utility
 
 ## Documentaion
 
-
+- [latest](https://grainy.readthedocs.io/en/latest/)
+- [stable](https://grainy.readthedocs.io/en/stable/)
 
 ## License
 
