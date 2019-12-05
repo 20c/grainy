@@ -4,10 +4,6 @@ import sys
 import unittest
 import json
 
-performance_test = pytest.mark.skipif(
-    not pytest.config.getoption("--performance"),
-    reason="need --performance option to run"
-)
 
 p1 = core.Permission("a", const.PERM_READ)
 p2 = core.Permission("a.b.c", const.PERM_RW)
@@ -379,28 +375,4 @@ class TestPermissionSet(unittest.TestCase):
         rv = pset.apply(data, applicator=applicator)
         self.assertEqual(rv, expected)
 
-
-
-    @performance_test
-    def test_performance(self):
-
-        def mkdataset(depth=3):
-            depth = depth - 1
-            if depth <= 0:
-                return
-            return dict([(str(k),mkdataset(depth=depth)) for k in range(1,1000)])
-        data = {
-            "a" : mkdataset(3),
-            "b" : mkdataset(3)
-        }
-
-        pset = core.PermissionSet(pdict3)
-
-        import time
-
-        t= time.time()
-        cleaned = pset.apply(data)
-        diff = time.time() - t
-
-        self.assertLess(diff, 0.002)
 
