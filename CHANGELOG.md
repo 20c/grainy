@@ -2,6 +2,8 @@
 
 
 ## Unreleased
+### Added
+- api docs
 ### Changed
 - move to ctl
 - update requirements
