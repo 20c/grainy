@@ -1,26 +1,36 @@
+"""
+core functionality
+"""
+
 import six
 from builtins import str
 from past.builtins import basestring
 from builtins import object
 import grainy.const as const
 
+
 def list_key_handler(row, idx):
     if isinstance(row, dict):
         return row.get("id", row.get("name", str(idx)))
     return idx
 
+
 def int_flags(flags, mapper=const.PERM_STRING_MAP):
     """
     Converts string permission flags into integer permission flags as
     specified in const.PERM_STRING_MAP
-    Arguments:
-        - flags <str>: one or more flags
-            For example: "crud" or "ru" or "r"
-        - mapper <list=const.PERM_STRING_MAP>: a list containing tuples mapping
-            int permission flag to string permission flag. If not specified will
-            default to const.PERM_STRING_MAP.
-    Returns:
-        - int
+
+    **Arguments**
+
+    - flags (`str`): one or more flags
+      For example: "crud" or "ru" or "r"
+    - mapper (`list=const.PERM_STRING_MAP`): a list containing tuples mapping
+      int permission flag to string permission flag. If not specified will
+      default to const.PERM_STRING_MAP.
+
+    **Returns**
+
+    `int`
     """
 
     r = 0
@@ -39,12 +49,25 @@ def int_flags(flags, mapper=const.PERM_STRING_MAP):
                 r = r | f_i
     return r
 
+
 class Namespace(object):
     """
     Object representing a permissioning namespace
+
+    # Instanced Attributes
+
+    - length (`int`): namespace key length, number of keys in the namespace
+    - value (`str`): namespace
+    - keys (`list<str>`): namespace keys
     """
 
     def __init__(self, value):
+        """
+        **Arguments**
+
+        - value (`list<str>`|`str`): can either be a list containing
+        namespace keys or a str with keys delimited by the `.` character
+        """
         self.set(value)
 
     def __unicode__(self):
@@ -70,6 +93,17 @@ class Namespace(object):
         return self.__add__(other)
 
     def set(self, value):
+        """
+        Set the namespace value
+
+        This is called *automatically* during __init__
+
+        **Arguments**
+
+        - value (`list<str>`|`str`): can either be a list containing
+        namespace keys or a str with keys delimited by the `.` character
+        """
+
         if isinstance(value, list):
             value = ".".join([str(v) for v in value])
         if len(value) > 2 and value[-2:] == ".*":
@@ -83,20 +117,32 @@ class Namespace(object):
         Check if the value of this namespace is matched by
         keys
 
-        '*' is treated as wildcard
+        !!! note "Wildcards"
+            You can use the `*` character as a wildcard match for
+            keys
 
-        Arguments:
-
-        keys -- list of keys
-
-        Examples:
-
+        ??? note "Examples"
+            ```py
             ns = Namespace("a.b.c")
             ns.match(["a"]) #True
             ns.match(["a","b"]) #True
             ns.match(["a","b","c"]) #True
             ns.match(["a","*","c"]) #True
             ns.match(["b","b","c"]) #False
+            ```
+
+        **Arguments**
+
+        - keys (`list`): list of keys
+
+        **Keyword Arguments**
+
+        - partial (`bool=True`): allow partial matching
+
+
+        **Returns**
+
+        `bool`: `True` if matched, `False` if not
 
         """
         if not partial and len(keys) != self.length:
@@ -116,10 +162,9 @@ class Namespace(object):
         """
         Creates a dict built from the keys of this namespace
 
-        Returns the dict created as well as the tail in a tuple
+        ??? note "Example"
 
-        Example:
-
+            ```py
             self.value = "a.b.c"
 
             container, tail = self.container()
@@ -127,6 +172,18 @@ class Namespace(object):
 
             container, tail = self.container({"d":123})
             #{"a":{"b":{"c":{"d":123}}}, {"d":123}
+            ```
+
+        **Keyword Arguments**
+
+        - data (`dict`): use this as root dict
+
+        **Returns**
+
+        `tuple(<dict>,<dict>)`: a tuple containing the root of the
+        generated `dict` as the first element and the tail of the
+        generated `dict` as the second element
+
         """
 
         if data is None:
@@ -148,13 +205,19 @@ class Permission(object):
     """
     Permission object defined by a namespace and a permission bitmask
 
-    Arguments:
+    # Instanced Attributes
 
-    namespace -- string or Namespace instance defining the namespace
-    value -- permission bitmask
+    - namespace (`Namespace`)
+    - value (`int`): permission mask
     """
 
     def __init__(self, namespace, value):
+        """
+        **Arguments**
+
+        - namespace (`str`|`Namespace`)
+        - value (`int`): permission mask
+        """
         if isinstance(namespace, basestring):
             namespace = Namespace(namespace)
 
@@ -162,22 +225,31 @@ class Permission(object):
         self.value = value
 
     def __eq__(self, other):
-        r = (
-            other.namespace == self.namespace and
-            other.value == self.value
-        )
+        r = other.namespace == self.namespace and other.value == self.value
         return r
 
     def has_value(self):
         """
         Check that value has been set
+
+        **Returns**
+
+        `bool`: `True` if value has been set, `False` if not
         """
-        return (self.value is not None)
+        return self.value is not None
 
     def check(self, level):
         """
-        Check if permission flagset contains the specified
+        Check if permission mask contains the specified
         permission level
+
+        **Arguments**
+
+        - level (`int`): permission flag
+
+        **Returns**
+
+        `bool`: `True` if flag is contained in mask, `False` if not
         """
         if not self.has_value():
             return False
@@ -192,11 +264,20 @@ class PermissionSet(object):
     Can also be applied to a data dict to remove keys that are not
     accessible according the permissions in the set
 
-    Keyword arguments:
-    rules -- list of Permission objects or dict of namespace(str) : permission(int) pairs
+    # Instanced Attributes
+
+    - permissions (`dict`): permissions in this set
+    - index (`dict`): permission index
+    - read_access_map (`dict`)
     """
 
     def __init__(self, rules=None):
+        """
+        **Keyword Arguments**
+
+        - rules (`list<Permission>`|`dict<str,int>`): list of `Permission` objects
+        or `dict` of `namspace(str)`:`permission(int)` pairs
+        """
 
         if rules is None:
             rules = []
@@ -215,7 +296,7 @@ class PermissionSet(object):
     @property
     def namespaces(self):
         """
-        Returns list of all namespaces registered in this permission set
+        `list` of all namespaces registered in this permission set
         """
         return list(self.permissions.keys())
 
@@ -241,7 +322,8 @@ class PermissionSet(object):
             self.permissions[key] = Permission(key, other)
         else:
             raise TypeError(
-                "Value needs to be a Permission instance or a permission flag")
+                "Value needs to be a Permission instance or a permission flag"
+            )
         if reindex:
             self.update_index()
 
@@ -249,8 +331,7 @@ class PermissionSet(object):
         if namespace in self.permissions:
             del self.permissions[namespace]
         else:
-            raise KeyError(
-                "No permission registered under namespace '%s'" % namespace)
+            raise KeyError("No permission registered under namespace '%s'" % namespace)
         self.update_index()
 
     def update(self, permissions):
@@ -258,14 +339,19 @@ class PermissionSet(object):
         Update the permissionset with a dict of namespace<str>:permission<Permission|int|long>
         pairs
 
-        Example:
-
+        ??? note "Examples"
+            ```py
             pset.update(
               {
                 "a" : const.PERM_READ,
                 "b" : Permission("b", const.PERM_RW)
               }
             )
+            ```
+
+        **Arguments**
+
+        - permissions (`dict`): dict mapping namespaces (`str`) to permission (`Permission` or `int`)
         """
         for k, v in list(permissions.items()):
             self.__setitem__(k, v, reindex=False)
@@ -307,7 +393,10 @@ class PermissionSet(object):
                 if k != "__" and k != "__implicit":
                     r[k] = update_ramap(v)
 
-            if branch_idx["__"] is not None and (branch_idx["__"] & const.PERM_READ) != 0:
+            if (
+                branch_idx["__"] is not None
+                and (branch_idx["__"] & const.PERM_READ) != 0
+            ):
                 r["__"] = True
             return r
 
@@ -337,14 +426,26 @@ class PermissionSet(object):
             if explicit and branch[key].get("__implicit") and i + 1 >= l:
                 p, r = 0, 0
             else:
-                p, r = self._check(keys, branch[key], flags=branch[key].get(
-                    "__", flags), i=i + 1, explicit=explicit, l=l)
+                p, r = self._check(
+                    keys,
+                    branch[key],
+                    flags=branch[key].get("__", flags),
+                    i=i + 1,
+                    explicit=explicit,
+                    l=l,
+                )
         if "*" in branch:
             if explicit and branch["*"].get("__implicit") and i + 1 >= l:
                 j, a = 0, 0
             else:
-                j, a = self._check(keys, branch[
-                                   "*"], flags=branch["*"].get("__", flags), i=i + 1, explicit=explicit, l=l)
+                j, a = self._check(
+                    keys,
+                    branch["*"],
+                    flags=branch["*"].get("__", flags),
+                    i=i + 1,
+                    explicit=explicit,
+                    l=l,
+                )
 
         if explicit and r == 0 and a == 0:
             return 0, i
@@ -361,14 +462,17 @@ class PermissionSet(object):
         """
         Returns the permissions level for the specified namespace
 
-        Arguments:
+        **Arguments**
 
-        namespace -- permissioning namespace (str)
-        explicit -- require explicitly set permissions to the provided namespace
+        - namespace (`str`): permissioning namespace
 
-        Returns:
+        **Keyword Arguments**
 
-        int -- permissioning flags
+        - explicit (`bool=False`): require explicitly set permissions to the provided namespace
+
+        **Returns**
+
+        `int`: permission mask
         """
 
         if not isinstance(namespace, Namespace):
@@ -377,21 +481,24 @@ class PermissionSet(object):
         p, _ = self._check(keys, self.index, explicit=explicit)
         return p
 
-
     def check(self, namespace, level, explicit=False):
         """
         Checks if the permset has permission to the specified namespace
         at the specified level
 
-        Arguments:
+        **Arguments**
 
-        namespace -- permissioning namespace (str)
-        level -- permissioning level (int) (PERM_READ for example)
-        explicit -- require explicitly set permissions to the provided namespace
+        - namespace (`str`): permissioning namespace
+        - level (`int`): permission flag, `PERM_READ` for example
 
-        Returns:
+        **Keyword Arguments**
 
-        bool
+        - explicit (`bool=False`): require explicitly set permissions to the provided namespace
+
+        **Returns**
+
+        `bool`: `True` if permissioned `False` if not
+
         """
 
         return (self.get_permissions(namespace, explicit=explicit) & level) != 0
@@ -401,13 +508,19 @@ class PermissionSet(object):
         Apply permissions in this set to the provided data, effectively
         removing all keys from it are not permissioned to be viewed
 
-        Arguments:
+        **Arguments**
 
-        data -- dict of data
+        - data (`dict`)
 
-        Returns:
+        **Keyword Arguments**
 
-        Cleaned data
+        - applicator (`Applicator=None`): allows you to specify the
+        applicator instance to use. If none is specified an instance
+        of `Applicator` will be used.
+
+        **Returns**
+
+        `dict`: cleaned data
         """
 
         if applicator:
@@ -420,6 +533,14 @@ class PermissionSet(object):
 
 class Applicator(object):
 
+    """
+    Handles application of permissions to a dataset contained
+    in a dict
+
+    Any data that is not permissioned to be read will be removed
+    during application of permissions.
+    """
+
     def __init__(self, pset):
         self.pset = pset
         self.handlers = {}
@@ -427,24 +548,20 @@ class Applicator(object):
     def handler(self, path, key=None, explicit=False):
         if not isinstance(path, Namespace):
             path = Namespace(path)
-        self.handlers[str(path)] = {
-            "namespace" : path,
-            "key" : key,
-            "explicit" : explicit
-        }
+        self.handlers[str(path)] = {"namespace": path, "key": key, "explicit": explicit}
 
     def apply(self, data, path=None):
         """
         Apply permissions in this set to the provided data, effectively
         removing all keys from it are not permissioned to be viewed
 
-        Arguments:
+        **Arguments**
 
-        data -- dict of data
+        - data (`dict`)
 
-        Returns:
+        **Returns**
 
-        Cleaned data
+        `dict`: cleaned data
         """
 
         if path is None:
@@ -468,7 +585,6 @@ class Applicator(object):
                 container[key] = value
 
         def _apply(ramap, value, status=False, wc=False, path=[]):
-
 
             if not isinstance(value, dict) and not isinstance(value, list):
                 if status:
@@ -502,11 +618,13 @@ class Applicator(object):
                 k = str(k)
                 if isinstance(v, dict) or isinstance(v, list):
                     if k in ramap:
-                        r = _apply(ramap[k], v, status=status, path=path+[k])
+                        r = _apply(ramap[k], v, status=status, path=path + [k])
                         if r:
                             _set(rv, k, r)
                     elif "*" in ramap:
-                        r = _apply(ramap["*"], v, status=status, wc=True, path=path+[k])
+                        r = _apply(
+                            ramap["*"], v, status=status, wc=True, path=path + [k]
+                        )
                         if r:
                             _set(rv, k, r)
                     elif status:
@@ -539,7 +657,6 @@ class Applicator(object):
                     tmpns[ns] = p
                     self.pset[ns] = const.PERM_DENY
 
-
         # apply permissions
         rv = _apply(self.pset.read_access_map, data)
 
@@ -551,5 +668,3 @@ class Applicator(object):
                 self.pset[ns] = p
 
         return rv
-
-

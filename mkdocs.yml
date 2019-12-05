@@ -1,0 +1,18 @@
+site_name: grainy
+site_url: https://github.com/20c/grainy
+
+theme: readthedocs
+
+nav:
+  - Home: index.md
+  - Quickstart: quickstart.md
+  - API:
+    - grainy.const: api/grainy.const.md
+    - grainy.core: api/grainy.core.md
+
+markdown_extensions:
+  - markdown_include.include
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdgen
