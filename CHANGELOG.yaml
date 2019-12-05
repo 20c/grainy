@@ -1,0 +1,50 @@
+1.1.0:
+  added:
+  - Implemented PermissionSet.get_permissions()
+1.2.0:
+  added:
+  - namespace handlers
+  - Support applying permissions to nested lists
+1.3.1:
+  added:
+  - Applicator class
+  - Way to require explicit namespaces when applying permissions to datasets
+  changed:
+  - PermissionSet.apply now uses the new Applicator class
+  - Renamed core.list_namespace_handler to core.list_key_handler
+  removed:
+  - PermissionSet.handle_namespace (Replaced by Applicator class)
+1.3.2:
+  fixed:
+  - Passing a number as one of the path components during Namespace.__init__ will
+    no longer fail with a TypeError
+1.3.3:
+  fixed:
+  - Issue where wildcard permissions would not correctly inherit from parent permission
+  - Issue with numeric namespace elements during Applicator.apply
+1.3.4:
+  fixed:
+  - Applicator.handlers made instanced property
+1.3.5:
+  fixed:
+  - Issue in Applicator.apply with explicitly required namespaces and wildcard permissions
+1.3.6:
+  added:
+  - Namespace.__add__
+  - Namespace.__iadd__
+1.3.7:
+  fixed:
+  - allow passing of `long` values for permissions in PermissionSet.__setitem__
+1.4.0:
+  added:
+  - '`const.PERM_STRING_MAP` to allow mapping string flags to integer flags'
+  - '`int_flags` function to allow converting string flags to integer flags'
+Unreleased:
+  added: []
+  changed:
+  - move to ctl
+  - update requirements
+  deprecated: []
+  fixed: []
+  removed: []
+  security: []
