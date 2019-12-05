@@ -39,12 +39,15 @@
   added:
   - '`const.PERM_STRING_MAP` to allow mapping string flags to integer flags'
   - '`int_flags` function to allow converting string flags to integer flags'
-Unreleased:
+1.4.1:
   added:
   - api docs
   changed:
   - move to ctl
   - update requirements
+Unreleased:
+  added: []
+  changed: []
   deprecated: []
   fixed: []
   removed: []
