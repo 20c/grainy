@@ -46,7 +46,8 @@
   - move to ctl
   - update requirements
 Unreleased:
-  added: []
+  added:
+  - Expandable namespaces
   changed: []
   deprecated: []
   fixed: []

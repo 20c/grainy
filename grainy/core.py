@@ -478,8 +478,76 @@ class PermissionSet(object):
         if not isinstance(namespace, Namespace):
             namespace = Namespace(namespace)
         keys = namespace.keys
+
         p, _ = self._check(keys, self.index, explicit=explicit)
         return p
+
+
+    def expandable(self, namespace):
+        """
+        Returns whether or not the submitted namespace is expandable.
+
+        An expandable namespace is any namespace that contains "?"
+        keys.
+
+        **Arguments**
+
+        - namespace (`str`): permissioning namespace
+
+        **Returns**
+
+        - `bool`
+        """
+
+
+        if not isinstance(namespace, Namespace):
+            namespace = Namespace(namespace)
+        return ("?" in namespace.keys)
+
+    def expand(self, namespace, index=None, path=None, length=0):
+
+        """
+        Expands "?" parts of a namespace into a list of namespaces
+
+        **Arguments**
+
+        - namespace (`str`): permissioning namespace
+
+        **Returns**
+
+        - `list`: list of namespaces
+        """
+
+        if not isinstance(namespace, Namespace):
+            namespace = Namespace(namespace)
+        keys = namespace.keys
+
+        if not index:
+            index = self.index
+
+        if not path:
+            path = []
+
+        if not length:
+            length = len(keys)
+
+        token = keys[0]
+        result = []
+
+        for k in index.keys():
+            if k[0] == "_":
+                continue
+            if token == k or token == "?" or k == "*":
+                if k == "*" and token != "?":
+                    _path = path + [token]
+                else:
+                    _path = path + [k]
+                if len(_path) == length and index[k]["__"]:
+                    result.append(Namespace(_path))
+                result += [ns for ns in self.expand(keys[1:], index=index[k], path=_path, length=length)]
+
+        return result
+
 
     def check(self, namespace, level, explicit=False):
         """
@@ -500,6 +568,13 @@ class PermissionSet(object):
         `bool`: `True` if permissioned `False` if not
 
         """
+
+        if self.expandable(namespace):
+            for _namespace in self.expand(namespace):
+                print("checking", f"{_namespace}")
+                if self.get_permissions(_namespace, explicit=explicit) & level != 0:
+                    return True
+            return False
 
         return (self.get_permissions(namespace, explicit=explicit) & level) != 0
 

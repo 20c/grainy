@@ -53,6 +53,15 @@ pdict4 = {
     "nested.*.data.public" : const.PERM_READ
 }
 
+pdict5 = {
+    "a.b.c" : const.PERM_READ,
+    "a.b.d" : const.PERM_READ | const.PERM_WRITE,
+    "a.b.e" : const.PERM_READ,
+    "r.s" : const.PERM_READ,
+    "x.*.z" : const.PERM_READ,
+    "x.*.x" : const.PERM_READ | const.PERM_WRITE,
+}
+
 
 class TestPermissionSet(unittest.TestCase):
 
@@ -136,6 +145,7 @@ class TestPermissionSet(unittest.TestCase):
         self.assertIn("a.b.c", pset)
         self.assertNotIn("x", pset)
 
+
     def test_update(self):
 
         pset = core.PermissionSet(pdict)
@@ -186,6 +196,37 @@ class TestPermissionSet(unittest.TestCase):
         self.assertEqual(pset.check("e.m.g.b", const.PERM_RW), True)
         self.assertEqual(pset.check("f", const.PERM_WRITE), False)
         self.assertEqual(pset.check("f.g", const.PERM_READ), True)
+
+
+    def test_check_any(self):
+
+
+        pset = core.PermissionSet(pdict5)
+
+        assert pset.check("a.b.?", const.PERM_READ) == True
+        assert pset.check("a.b.?", const.PERM_WRITE) == True
+        assert pset.check("a.?.?", const.PERM_READ) == True
+        assert pset.check("a.?.?", const.PERM_WRITE) == True
+        assert pset.check("a.?.c", const.PERM_READ) == True
+        assert pset.check("a.?.c", const.PERM_WRITE) == False
+        assert pset.check("a.?.d", const.PERM_WRITE) == True
+
+        assert pset.check("x.b.?", const.PERM_READ) == True
+        assert pset.check("x.b.?", const.PERM_WRITE) == True
+        assert pset.check("x.?.?", const.PERM_READ) == True
+        assert pset.check("x.?.?", const.PERM_WRITE) == True
+        assert pset.check("x.?.z", const.PERM_READ) == True
+        assert pset.check("x.?.z", const.PERM_WRITE) == False
+        assert pset.check("x.?.x", const.PERM_WRITE) == True
+
+        assert pset.check("?.?.?", const.PERM_READ) == True
+        assert pset.check("?.?.?", const.PERM_WRITE) == True
+
+        assert pset.check("a.?", const.PERM_READ) == False
+        assert pset.check("?.s", const.PERM_READ) == True
+
+
+
 
     def test_check_explicit(self):
         pset = core.PermissionSet(pdict)

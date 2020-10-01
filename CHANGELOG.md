@@ -2,6 +2,8 @@
 
 
 ## Unreleased
+### Added
+- Expandable namespaces
 
 
 ## 1.4.1
