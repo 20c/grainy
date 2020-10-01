@@ -496,7 +496,7 @@ class PermissionSet:
             namespace = Namespace(namespace)
         return "?" in namespace.keys
 
-    def expand(self, namespace, index=None, path=None, length=0):
+    def expand(self, namespace, explicit=False, index=None, path=None, length=0):
 
         """
         Expands "?" parts of a namespace into a list of namespaces
@@ -534,12 +534,13 @@ class PermissionSet:
                     _path = path + [token]
                 else:
                     _path = path + [k]
-                if len(_path) == length and index[k]["__"]:
+                if (len(_path) == length or not explicit) and index[k]["__"]:
                     result.append(Namespace(_path))
                 result += [
                     ns
                     for ns in self.expand(
-                        keys[1:], index=index[k], path=_path, length=length
+                        keys[1:], index=index[k], path=_path, length=length,
+                        explicit=explicit
                     )
                 ]
 
@@ -564,6 +565,7 @@ class PermissionSet:
         `bool`: `True` if permissioned `False` if not
 
         """
+
 
         if self.expandable(namespace):
             for _namespace in self.expand(namespace):
