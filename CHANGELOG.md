@@ -4,6 +4,11 @@
 ## Unreleased
 ### Added
 - Expandable namespaces
+- Python3.8 support
+### Removed
+- Python2.7 support
+- Python3.4 support
+- Python3.5 support
 
 
 ## 1.4.1

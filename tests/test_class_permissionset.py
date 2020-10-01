@@ -9,64 +9,63 @@ p1 = core.Permission("a", const.PERM_READ)
 p2 = core.Permission("a.b.c", const.PERM_RW)
 
 pdict = {
-    "a" : const.PERM_READ,
-    "a.b.c" : const.PERM_RW,
-    "a.b.*.d" : const.PERM_DENY,
-    "a.c" : const.PERM_WRITE,
-    "b.c" : const.PERM_READ,
-    "k" : const.PERM_READ,
-    "k.x.y" : const.PERM_DENY,
-    "l" : const.PERM_READ,
-    "l.*.y" : const.PERM_DENY
+    "a": const.PERM_READ,
+    "a.b.c": const.PERM_RW,
+    "a.b.*.d": const.PERM_DENY,
+    "a.c": const.PERM_WRITE,
+    "b.c": const.PERM_READ,
+    "k": const.PERM_READ,
+    "k.x.y": const.PERM_DENY,
+    "l": const.PERM_READ,
+    "l.*.y": const.PERM_DENY,
 }
 
 
 pdict2 = {
-    "a" : const.PERM_READ,
-    "a.b.c" : const.PERM_RW,
-    "a.b.e" : const.PERM_DENY,
-    "a.b.*.d" : const.PERM_DENY,
-    "e.f" : const.PERM_READ,
-    "e.*.g" : const.PERM_WRITE,
-    "e.*.g.a" : const.PERM_READ,
-    "e.*.g.b" : const.PERM_RW,
-    "e.h.g" : const.PERM_DENY,
-    "f.g" : const.PERM_READ
+    "a": const.PERM_READ,
+    "a.b.c": const.PERM_RW,
+    "a.b.e": const.PERM_DENY,
+    "a.b.*.d": const.PERM_DENY,
+    "e.f": const.PERM_READ,
+    "e.*.g": const.PERM_WRITE,
+    "e.*.g.a": const.PERM_READ,
+    "e.*.g.b": const.PERM_RW,
+    "e.h.g": const.PERM_DENY,
+    "f.g": const.PERM_READ,
 }
 
 pdict3 = {
-    "a.100" : const.PERM_READ,
-    "a.b.c" : const.PERM_RW,
-    "a.b.e" : const.PERM_DENY,
-    "a.b.*.d" : const.PERM_DENY,
-    "e.f" : const.PERM_READ,
-    "e.*.g" : const.PERM_WRITE,
-    "e.*.g.a" : const.PERM_READ,
-    "e.*.g.b" : const.PERM_RW,
-    "e.h.g" : const.PERM_DENY
+    "a.100": const.PERM_READ,
+    "a.b.c": const.PERM_RW,
+    "a.b.e": const.PERM_DENY,
+    "a.b.*.d": const.PERM_DENY,
+    "e.f": const.PERM_READ,
+    "e.*.g": const.PERM_WRITE,
+    "e.*.g.a": const.PERM_READ,
+    "e.*.g.b": const.PERM_RW,
+    "e.h.g": const.PERM_DENY,
 }
 
 pdict4 = {
-    "a.b" : const.PERM_READ,
-    "x" : const.PERM_READ,
-    "x.z" : const.PERM_DENY,
-    "nested.*.data.public" : const.PERM_READ
+    "a.b": const.PERM_READ,
+    "x": const.PERM_READ,
+    "x.z": const.PERM_DENY,
+    "nested.*.data.public": const.PERM_READ,
 }
 
 pdict5 = {
-    "a.b.c" : const.PERM_READ,
-    "a.b.d" : const.PERM_READ | const.PERM_WRITE,
-    "a.b.e" : const.PERM_READ,
-    "r.s" : const.PERM_READ,
-    "x.*.z" : const.PERM_READ,
-    "x.*.x" : const.PERM_READ | const.PERM_WRITE,
+    "a.b.c": const.PERM_READ,
+    "a.b.d": const.PERM_READ | const.PERM_WRITE,
+    "a.b.e": const.PERM_READ,
+    "r.s": const.PERM_READ,
+    "x.*.z": const.PERM_READ,
+    "x.*.x": const.PERM_READ | const.PERM_WRITE,
 }
 
 
 class TestPermissionSet(unittest.TestCase):
-
     def test_init(self):
-        pset = core.PermissionSet([p1,p2])
+        pset = core.PermissionSet([p1, p2])
         self.assertEqual(pset.permissions["a"], p1)
         self.assertEqual(pset.permissions["a.b.c"], p2)
 
@@ -77,62 +76,32 @@ class TestPermissionSet(unittest.TestCase):
     def test_update_index(self):
         pset = core.PermissionSet(pdict)
         expected = {
-            'a': {
-                '__': 1,
-                '__implicit' : False,
-                'c': {
-                    '__implicit' : False,
-                    '__': 14
-                },
-                'b': {
-                    '__': 1,
-                    '__implicit' : True,
-                    'c': {
-                        '__': 15,
-                        '__implicit' : False
+            "a": {
+                "__": 1,
+                "__implicit": False,
+                "c": {"__implicit": False, "__": 14},
+                "b": {
+                    "__": 1,
+                    "__implicit": True,
+                    "c": {"__": 15, "__implicit": False},
+                    "*": {
+                        "__implicit": True,
+                        "__": 1,
+                        "d": {"__implicit": False, "__": 0},
                     },
-                    '*': {
-                        '__implicit' : True,
-                        '__': 1,
-                        'd': {
-                            '__implicit' : False,
-                            '__': 0
-                        }
-                    }
-                }
+                },
             },
-            'b': {
-                '__implicit' : True,
-                '__': 0,
-                'c': {
-                    '__implicit' : False,
-                    '__': 1
-                }
+            "b": {"__implicit": True, "__": 0, "c": {"__implicit": False, "__": 1}},
+            "k": {
+                "__": 1,
+                "__implicit": False,
+                "x": {"__": 1, "__implicit": True, "y": {"__": 0, "__implicit": False}},
             },
-            'k' :{
-                "__" : 1,
-                "__implicit" : False,
-                'x' : {
-                    "__": 1,
-                    "__implicit" : True,
-                    "y" : {
-                        "__": 0,
-                        "__implicit": False
-                    }
-                }
+            "l": {
+                "__": 1,
+                "__implicit": False,
+                "*": {"__": 1, "__implicit": True, "y": {"__": 0, "__implicit": False}},
             },
-            'l' :{
-                "__" : 1,
-                "__implicit" : False,
-                '*' : {
-                    "__": 1,
-                    "__implicit" : True,
-                    "y" : {
-                        "__": 0,
-                        "__implicit": False
-                    }
-                }
-            }
         }
 
         self.maxDiff = None
@@ -145,12 +114,11 @@ class TestPermissionSet(unittest.TestCase):
         self.assertIn("a.b.c", pset)
         self.assertNotIn("x", pset)
 
-
     def test_update(self):
 
         pset = core.PermissionSet(pdict)
 
-        pset.update({"x":const.PERM_READ, "z":core.Permission("z", const.PERM_READ)})
+        pset.update({"x": const.PERM_READ, "z": core.Permission("z", const.PERM_READ)})
         self.assertIn("a", pset)
         self.assertIn("a.b.c", pset)
         self.assertIn("x", pset)
@@ -158,7 +126,6 @@ class TestPermissionSet(unittest.TestCase):
 
         self.assertEqual(pset.check("x", const.PERM_READ), True)
         self.assertEqual(pset.check("z", const.PERM_READ), True)
-
 
     def test_setitem_delitem(self):
         pset = core.PermissionSet()
@@ -178,7 +145,6 @@ class TestPermissionSet(unittest.TestCase):
 
         self.assertNotIn("b", pset)
 
-
     def test_check(self):
         pset = core.PermissionSet(pdict2)
 
@@ -187,7 +153,7 @@ class TestPermissionSet(unittest.TestCase):
         self.assertEqual(pset.check("a.b.d", const.PERM_READ), True)
         self.assertEqual(pset.check("a.b.c.d", const.PERM_READ), False)
         self.assertEqual(pset.check("e.f", const.PERM_READ), True)
-        self.assertEqual(pset.check("e", const.PERM_READ), False )
+        self.assertEqual(pset.check("e", const.PERM_READ), False)
         self.assertEqual(pset.check("e.j.g", const.PERM_WRITE), True)
         self.assertEqual(pset.check("e.k.g.a", const.PERM_WRITE), False)
         self.assertEqual(pset.check("e.h.g", const.PERM_READ), False)
@@ -197,9 +163,7 @@ class TestPermissionSet(unittest.TestCase):
         self.assertEqual(pset.check("f", const.PERM_WRITE), False)
         self.assertEqual(pset.check("f.g", const.PERM_READ), True)
 
-
     def test_check_any(self):
-
 
         pset = core.PermissionSet(pdict5)
 
@@ -225,13 +189,10 @@ class TestPermissionSet(unittest.TestCase):
         assert pset.check("a.?", const.PERM_READ) == False
         assert pset.check("?.s", const.PERM_READ) == True
 
-
-
-
     def test_check_explicit(self):
         pset = core.PermissionSet(pdict)
         self.assertEqual(pset.check("a.b", const.PERM_READ, explicit=True), False)
-        self.assertEqual(pset.check("a", const.PERM_READ, explicit=True), True )
+        self.assertEqual(pset.check("a", const.PERM_READ, explicit=True), True)
         self.assertEqual(pset.check("a", const.PERM_WRITE, explicit=True), False)
         self.assertEqual(pset.check("a.b.c", const.PERM_WRITE, explicit=True), True)
         self.assertEqual(pset.check("a.b.c", const.PERM_READ, explicit=True), True)
@@ -239,39 +200,11 @@ class TestPermissionSet(unittest.TestCase):
     def test_apply(self):
         pset = core.PermissionSet(pdict2)
         data = {
-            "a" : {
-                "b" : {
-                    "c" : {
-                        "A" : True
-                    },
-                    "d" : {
-                        "A" : True
-                    },
-                    "e" : {
-                        "A" : False
-                    }
-                }
-            },
-            "f": {
-                "g" : True
-            }
+            "a": {"b": {"c": {"A": True}, "d": {"A": True}, "e": {"A": False}}},
+            "f": {"g": True},
         }
 
-        expected = {
-            "a" : {
-                "b" : {
-                    "c" : {
-                        "A" : True
-                    },
-                    "d" : {
-                        "A" : True
-                    }
-                }
-            },
-            "f": {
-                "g" : True
-            }
-        }
+        expected = {"a": {"b": {"c": {"A": True}, "d": {"A": True}}}, "f": {"g": True}}
 
         rv = pset.apply(data)
         self.assertEqual(rv, expected)
@@ -280,45 +213,21 @@ class TestPermissionSet(unittest.TestCase):
         pset = core.PermissionSet(pdict)
 
         data = {
-            "a" : {
+            "a": {
                 "b": {
                     "c": True,
                     "d": False,
                     "e": True,
-                    "f" : { "something" : "else"},
-                    "g" : {
-                        "nested" : {
-                            "something" : "else"
-                        },
-                        "test" : True
-                    }
+                    "f": {"something": "else"},
+                    "g": {"nested": {"something": "else"}, "test": True},
                 }
             },
-            "k" : {
-                "a" : {
-                    "nested" : {
-                        "something" : "else"
-                    },
-                    "test": True
-                }
-            }
+            "k": {"a": {"nested": {"something": "else"}, "test": True}},
         }
 
         expected = {
-            "a" : {
-                "b" : {
-                    "c": True,
-                    "e": True,
-                    "g": {
-                        "test" : True
-                    }
-                }
-            },
-            "k" : {
-                "a" : {
-                    "test": True
-                }
-            }
+            "a": {"b": {"c": True, "e": True, "g": {"test": True}}},
+            "k": {"a": {"test": True}},
         }
 
         applicator = core.Applicator(pset)
@@ -330,28 +239,16 @@ class TestPermissionSet(unittest.TestCase):
         self.assertEqual(rv, expected)
 
         expected = {
-            "a" : {
-                "b" : {
+            "a": {
+                "b": {
                     "c": True,
                     "d": False,
                     "e": True,
-                    "f" : { "something" : "else" },
-                    "g" : {
-                        "nested" : {
-                            "something" : "else"
-                        },
-                        "test" : True
-                    }
+                    "f": {"something": "else"},
+                    "g": {"nested": {"something": "else"}, "test": True},
                 }
             },
-            "k" : {
-                "a" : {
-                    "nested" : {
-                        "something" : "else"
-                    },
-                    "test" : True
-                }
-            }
+            "k": {"a": {"nested": {"something": "else"}, "test": True}},
         }
 
         pset["a.b.d"] = const.PERM_READ
@@ -361,59 +258,34 @@ class TestPermissionSet(unittest.TestCase):
         rv = pset.apply(data, applicator=applicator)
         self.assertEqual(rv, expected)
 
-
-
     def test_apply_nested_lists(self):
         pset = core.PermissionSet(pdict4)
-        data= {
-            "a" : [
-                { "id" : "b" },
-                { "id" : "c" }
-            ],
-            "x" : [
-                { "custom" : "y" },
-                { "custom" : "z" }
-            ],
-            "nested" : [
+        data = {
+            "a": [{"id": "b"}, {"id": "c"}],
+            "x": [{"custom": "y"}, {"custom": "z"}],
+            "nested": [
                 {
-                    "data" : [
+                    "data": [
                         {
-                            "level" : "public",
-                            "some" : "data",
-                            "explicit" : {
-                                "sekret" : "data"
-                            }
+                            "level": "public",
+                            "some": "data",
+                            "explicit": {"sekret": "data"},
                         },
-                        {
-                            "level" : "private",
-                            "sekret" : "data"
-                        }
+                        {"level": "private", "sekret": "data"},
                     ]
                 }
-            ]
+            ],
         }
 
         expected = {
-            "a" : [
-                { "id" : "b" }
-            ],
-            "nested" : [
-                {
-                    "data" : [
-                        { "level" : "public", "some" : "data" }
-                    ]
-                }
-            ],
-            "x" : [
-                { "custom" : "y" }
-            ]
+            "a": [{"id": "b"}],
+            "nested": [{"data": [{"level": "public", "some": "data"}]}],
+            "x": [{"custom": "y"}],
         }
 
         applicator = core.Applicator(pset)
-        applicator.handler("x", key=lambda row,idx: row["custom"])
-        applicator.handler("nested.*.data", key=lambda row,idx: row["level"])
+        applicator.handler("x", key=lambda row, idx: row["custom"])
+        applicator.handler("nested.*.data", key=lambda row, idx: row["level"])
         applicator.handler("nested.*.data.public.explicit", explicit=True)
         rv = pset.apply(data, applicator=applicator)
         self.assertEqual(rv, expected)
-
-

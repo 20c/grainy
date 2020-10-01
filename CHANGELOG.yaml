@@ -48,8 +48,12 @@
 Unreleased:
   added:
   - Expandable namespaces
+  - Python3.8 support
   changed: []
   deprecated: []
   fixed: []
-  removed: []
+  removed:
+  - Python2.7 support
+  - Python3.4 support
+  - Python3.5 support
   security: []

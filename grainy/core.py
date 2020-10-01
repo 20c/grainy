@@ -2,16 +2,12 @@
 core functionality
 """
 
-import six
-from builtins import str
-from past.builtins import basestring
-from builtins import object
 import grainy.const as const
 
 
 def list_key_handler(row, idx):
     if isinstance(row, dict):
-        return row.get("id", row.get("name", str(idx)))
+        return row.get("id", row.get("name", f"{idx}"))
     return idx
 
 
@@ -37,10 +33,10 @@ def int_flags(flags, mapper=const.PERM_STRING_MAP):
     if not flags:
         return r
 
-    if isinstance(flags, six.integer_types):
+    if isinstance(flags, int):
         return flags
 
-    if not isinstance(flags, six.string_types):
+    if not isinstance(flags, str):
         raise TypeError("`flags` needs to be a string or integer type")
 
     for f in flags:
@@ -50,7 +46,7 @@ def int_flags(flags, mapper=const.PERM_STRING_MAP):
     return r
 
 
-class Namespace(object):
+class Namespace:
     """
     Object representing a permissioning namespace
 
@@ -77,8 +73,7 @@ class Namespace(object):
         return self.value
 
     def __iter__(self):
-        for k in self.value.split("."):
-            yield k
+        yield from self.value.split(".")
 
     def __eq__(self, other):
         return str(self) == str(other)
@@ -201,7 +196,7 @@ class Namespace(object):
         return (root, p[k])
 
 
-class Permission(object):
+class Permission:
     """
     Permission object defined by a namespace and a permission bitmask
 
@@ -218,7 +213,7 @@ class Permission(object):
         - namespace (`str`|`Namespace`)
         - value (`int`): permission mask
         """
-        if isinstance(namespace, basestring):
+        if isinstance(namespace, str):
             namespace = Namespace(namespace)
 
         self.namespace = namespace
@@ -256,7 +251,7 @@ class Permission(object):
         return (self.value & level) != 0
 
 
-class PermissionSet(object):
+class PermissionSet:
     """
     Holds a set of Namespaces and permissions to run permission checks
     on
@@ -301,8 +296,7 @@ class PermissionSet(object):
         return list(self.permissions.keys())
 
     def __iter__(self):
-        for v in list(self.permissions.values()):
-            yield v
+        yield from list(self.permissions.values())
 
     def __contains__(self, item):
         return item in self.permissions
@@ -318,7 +312,7 @@ class PermissionSet(object):
     def __setitem__(self, key, other, reindex=True):
         if isinstance(other, Permission):
             self.permissions[key] = other
-        elif isinstance(other, six.integer_types):
+        elif isinstance(other, int):
             self.permissions[key] = Permission(key, other)
         else:
             raise TypeError(
@@ -368,7 +362,7 @@ class PermissionSet(object):
         # update index
 
         idx = {}
-        for _, p in sorted(self.permissions.items(), key=lambda x: str(x[0])):
+        for _, p in sorted(list(self.permissions.items()), key=lambda x: str(x[0])):
             branch = idx
             parent_p = const.PERM_DENY
             for k in p.namespace.keys:
@@ -482,7 +476,6 @@ class PermissionSet(object):
         p, _ = self._check(keys, self.index, explicit=explicit)
         return p
 
-
     def expandable(self, namespace):
         """
         Returns whether or not the submitted namespace is expandable.
@@ -499,10 +492,9 @@ class PermissionSet(object):
         - `bool`
         """
 
-
         if not isinstance(namespace, Namespace):
             namespace = Namespace(namespace)
-        return ("?" in namespace.keys)
+        return "?" in namespace.keys
 
     def expand(self, namespace, index=None, path=None, length=0):
 
@@ -534,7 +526,7 @@ class PermissionSet(object):
         token = keys[0]
         result = []
 
-        for k in index.keys():
+        for k in list(index.keys()):
             if k[0] == "_":
                 continue
             if token == k or token == "?" or k == "*":
@@ -544,10 +536,14 @@ class PermissionSet(object):
                     _path = path + [k]
                 if len(_path) == length and index[k]["__"]:
                     result.append(Namespace(_path))
-                result += [ns for ns in self.expand(keys[1:], index=index[k], path=_path, length=length)]
+                result += [
+                    ns
+                    for ns in self.expand(
+                        keys[1:], index=index[k], path=_path, length=length
+                    )
+                ]
 
         return result
-
 
     def check(self, namespace, level, explicit=False):
         """
@@ -571,7 +567,7 @@ class PermissionSet(object):
 
         if self.expandable(namespace):
             for _namespace in self.expand(namespace):
-                print("checking", f"{_namespace}")
+                print(("checking", f"{_namespace}"))
                 if self.get_permissions(_namespace, explicit=explicit) & level != 0:
                     return True
             return False
@@ -606,7 +602,7 @@ class PermissionSet(object):
         return applicator.apply(data, path=path)
 
 
-class Applicator(object):
+class Applicator:
 
     """
     Handles application of permissions to a dataset contained
@@ -647,11 +643,9 @@ class Applicator(object):
 
         def _enumerate(value):
             if isinstance(value, list):
-                for k, v in enumerate(value):
-                    yield k, v
+                yield from enumerate(value)
             elif isinstance(value, dict):
-                for k, v in value.items():
-                    yield k, v
+                yield from list(value.items())
 
         def _set(container, key, value):
             if isinstance(container, list):
@@ -674,7 +668,7 @@ class Applicator(object):
             key_handler = None
             if path and self.handlers:
                 namespace = Namespace(path)
-                for _handler in self.handlers.values():
+                for _handler in list(self.handlers.values()):
                     if namespace.match(_handler.get("namespace").keys, partial=False):
                         handler = _handler
                         key_handler = handler.get("key")
@@ -718,7 +712,7 @@ class Applicator(object):
         # loop through all the handlers that specify the `explicit` arguments
         # and temprorarily add deny rules for those to the targeted permissionset
         tmpns = {}
-        for ns, handler in self.handlers.items():
+        for ns, handler in list(self.handlers.items()):
             if handler.get("explicit"):
                 p = self.pset.get_permissions(ns)
                 if p & const.PERM_READ:
@@ -736,7 +730,7 @@ class Applicator(object):
         rv = _apply(self.pset.read_access_map, data)
 
         # remove temporarily added deny rules
-        for ns, p in tmpns.items():
+        for ns, p in list(tmpns.items()):
             if p is None:
                 del self.pset[ns]
             else:

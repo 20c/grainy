@@ -3,8 +3,8 @@ import unittest
 
 test_ns = core.Namespace("a.b.c")
 
-class TestPermission(unittest.TestCase):
 
+class TestPermission(unittest.TestCase):
     def test_init(self):
         perm = core.Permission(test_ns, const.PERM_RW)
         self.assertEqual(perm.value, const.PERM_RW)
