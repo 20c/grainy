@@ -72,8 +72,19 @@ class Namespace:
     def __str__(self):
         return self.value
 
+    def __hash__(self):
+        return self.value.__hash__()
+
     def __iter__(self):
         yield from self.value.split(".")
+
+
+    def __setitem__(self, index, value):
+        self.keys[index] = value
+        self.set(".".join(self.keys))
+
+    def __getitem__(self, index):
+        return self.keys[index]
 
     def __eq__(self, other):
         return str(self) == str(other)
@@ -101,8 +112,7 @@ class Namespace:
 
         if isinstance(value, list):
             value = ".".join([str(v) for v in value])
-        if len(value) > 2 and value[-2:] == ".*":
-            value = value[:-2]
+        value = value.rstrip(".*")
         self.value = value
         self.keys = [k for k in self]
         self.length = len(self.keys)
@@ -496,7 +506,7 @@ class PermissionSet:
             namespace = Namespace(namespace)
         return "?" in namespace.keys
 
-    def expand(self, namespace, explicit=False, index=None, path=None, length=0):
+    def expand(self, namespace, explicit=False, index=None, path=None, length=0, exact=False):
 
         """
         Expands "?" parts of a namespace into a list of namespaces
@@ -534,17 +544,20 @@ class PermissionSet:
                     _path = path + [token]
                 else:
                     _path = path + [k]
-                if (len(_path) == length or not explicit) and index[k]["__"]:
-                    result.append(Namespace(_path))
+                if (len(_path) == length or not exact) and (index[k]["__"] or not explicit):
+                    _namespace = Namespace(_path)
+                    if _namespace.value:
+                        result.append(_namespace)
+
                 result += [
                     ns
                     for ns in self.expand(
                         keys[1:], index=index[k], path=_path, length=length,
-                        explicit=explicit
+                        explicit=explicit, exact=exact
                     )
                 ]
 
-        return result
+        return list(set(result))
 
     def check(self, namespace, level, explicit=False):
         """
@@ -569,7 +582,6 @@ class PermissionSet:
 
         if self.expandable(namespace):
             for _namespace in self.expand(namespace):
-                print(("checking", f"{_namespace}"))
                 if self.get_permissions(_namespace, explicit=explicit) & level != 0:
                     return True
             return False
