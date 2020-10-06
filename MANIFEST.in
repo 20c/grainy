@@ -1,4 +1,4 @@
 include LICENSE
 recursive-include Ctl *.txt
-recursive-include grainy *.py
+recursive-include src/grainy *.py
 include Ctl/VERSION
