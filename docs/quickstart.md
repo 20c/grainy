@@ -33,6 +33,10 @@ pset.check("b.b.b", PERM_RW) # False
 pset.check("a", PERM_READ, explicit=True) # True
 pset.check("a.b", PERM_READ, explicit=True) # True
 pset.check("a.c", PERM_READ, explicit=True) # False
+
+pset.check("a.?.c", PERM_READ) # False
+pset.check("b.?.a", PERM_RW) # True
+pset.check("a.?", PERM_RW) # True
 ```
 
 # Setting and Deleting
