@@ -45,16 +45,19 @@
   changed:
   - move to ctl
   - update requirements
-Unreleased:
+1.5.0:
   added:
   - Expandable namespaces
   - javascript implementation (experimental)
   - Python3.8 support
-  changed: []
-  deprecated: []
-  fixed: []
   removed:
   - Python2.7 support
   - Python3.4 support
   - Python3.5 support
+Unreleased:
+  added: []
+  changed: []
+  deprecated: []
+  fixed: []
+  removed: []
   security: []
