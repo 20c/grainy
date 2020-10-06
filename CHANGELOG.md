@@ -4,6 +4,7 @@
 ## Unreleased
 ### Added
 - Expandable namespaces
+- javascript implementation (experimental)
 - Python3.8 support
 ### Removed
 - Python2.7 support

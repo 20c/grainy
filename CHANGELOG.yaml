@@ -48,6 +48,7 @@
 Unreleased:
   added:
   - Expandable namespaces
+  - javascript implementation (experimental)
   - Python3.8 support
   changed: []
   deprecated: []
