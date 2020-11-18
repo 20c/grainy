@@ -57,14 +57,14 @@ class Namespace:
     - keys (`list<str>`): namespace keys
     """
 
-    def __init__(self, value):
+    def __init__(self, value, strip=True):
         """
         **Arguments**
 
         - value (`list<str>`|`str`): can either be a list containing
         namespace keys or a str with keys delimited by the `.` character
         """
-        self.set(value)
+        self.set(value, strip=strip)
 
     def __unicode__(self):
         return self.value
@@ -81,7 +81,7 @@ class Namespace:
 
     def __setitem__(self, index, value):
         self.keys[index] = value
-        self.set(".".join(self.keys))
+        self.set(".".join(self.keys), strip=self.strip)
 
     def __getitem__(self, index):
         return self.keys[index]
@@ -98,7 +98,7 @@ class Namespace:
     def __iadd__(self, other):
         return self.__add__(other)
 
-    def set(self, value):
+    def set(self, value, strip=True):
         """
         Set the namespace value
 
@@ -112,7 +112,8 @@ class Namespace:
 
         if isinstance(value, list):
             value = ".".join([str(v) for v in value])
-        value = value.rstrip(".*")
+        if strip:
+            value = value.rstrip(".*")
         self.value = value
         self.keys = [k for k in self]
         self.length = len(self.keys)
@@ -630,10 +631,22 @@ class Applicator:
         self.pset = pset
         self.handlers = {}
 
-    def handler(self, path, key=None, explicit=False):
+    def handler(self, path, key=None, explicit=False, **kwargs):
         if not isinstance(path, Namespace):
-            path = Namespace(path)
-        self.handlers[str(path)] = {"namespace": path, "key": key, "explicit": explicit}
+            path = Namespace(path, strip=False)
+        handler = {"namespace": path, "key": key, "explicit": explicit}
+        handler.update(**kwargs)
+        self.handlers[str(path)] = handler
+
+    def find_handler(self, path):
+        handler = None
+        if path and self.handlers:
+            namespace = Namespace(path, strip=False)
+            for _handler in list(self.handlers.values()):
+                if namespace.match(_handler.get("namespace").keys, partial=False):
+                    handler = _handler
+                    break
+        return handler
 
     def apply(self, data, path=None):
         """
@@ -751,3 +764,51 @@ class Applicator:
                 self.pset[ns] = p
 
         return rv
+
+
+class NamespaceKeyApplicator(Applicator):
+
+    NAMESPACE_KEY = "_grainy"
+    denied = object()
+
+    def apply(self, data, **kwargs):
+
+        if isinstance(data, list):
+            return self.apply_list(data)
+        elif isinstance(data, dict):
+            namespace = data.get(self.NAMESPACE_KEY)
+
+            explicit = False
+            fn = False
+            handler = self.find_handler(namespace)
+            if handler:
+                explicit = handler.get("explicit", False)
+                fn = handler.get("fn", None)
+
+            if fn:
+                fn(namespace, data)
+
+            if namespace and not self.pset.check(namespace, 0x01, explicit=explicit):
+                return self.denied
+            elif namespace:
+                del data[self.NAMESPACE_KEY]
+
+            return self.apply_dict(data)
+        return data
+
+    def apply_list(self, data, **kwargs):
+        _data = []
+        for row in data:
+            _row = self.apply(row)
+            if _row != self.denied:
+                _data.append(_row)
+        return _data
+
+    def apply_dict(self, data, **kwargs):
+        _data = {}
+        for key, item in data.items():
+            _item = self.apply(item)
+            if _item != self.denied:
+                _data[key] = _item
+        return _data
+
