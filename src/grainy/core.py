@@ -412,26 +412,26 @@ class PermissionSet:
 
         return self.index
 
-    def _check(self, keys, branch, flags=None, i=0, explicit=False, l=0):
+    def _check(self, keys, branch, flags=0, i=0, explicit=False, l=0):
 
         try:
             key = keys[i]
         except IndexError:
             return flags, i
 
-        p = 0
-        r = 0
-        j = 0
-        a = 0
+        key_flag = 0
+        key_pos = 0
+        wc_flag = 0
+        wc_pos = 0
 
         if not l:
             l = len(keys)
 
         if key in branch:
             if explicit and branch[key].get("__implicit") and i + 1 >= l:
-                p, r = 0, 0
+                key_flag, key_pos = 0, 0
             else:
-                p, r = self._check(
+                key_flag, key_pos = self._check(
                     keys,
                     branch[key],
                     flags=branch[key].get("__", flags),
@@ -441,9 +441,9 @@ class PermissionSet:
                 )
         if "*" in branch:
             if explicit and branch["*"].get("__implicit") and i + 1 >= l:
-                j, a = 0, 0
+                wc_flag, wc_pos = 0, 0
             else:
-                j, a = self._check(
+                wc_flag, wc_pos = self._check(
                     keys,
                     branch["*"],
                     flags=branch["*"].get("__", flags),
@@ -452,15 +452,15 @@ class PermissionSet:
                     l=l,
                 )
 
-        if explicit and r == 0 and a == 0:
+        if explicit and key_pos == 0 and wc_pos == 0:
             return 0, i
 
-        if j is not None:
-            if r < a or p is None:
-                return j, a
-        if p is not None:
-            if r > i or flags is None:
-                return p, r
+        if wc_flag:
+            if key_pos < wc_pos or not key_flag:
+                return wc_flag, wc_pos
+        if key_flag:
+            if key_pos > i or not flags:
+                return key_flag, key_pos
         return flags, i
 
     def get_permissions(self, namespace, explicit=False):

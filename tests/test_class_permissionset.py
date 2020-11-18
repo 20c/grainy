@@ -62,6 +62,17 @@ pdict5 = {
     "x.*.x": const.PERM_READ | const.PERM_WRITE,
 }
 
+pdict6 = {
+    "a.b.c": const.PERM_WRITE,
+    "a.b.c.d.e": const.PERM_READ,
+}
+
+pdict7 = {
+    "a.b.c": const.PERM_WRITE,
+    "a.b.*.d.e": const.PERM_READ,
+}
+
+
 
 class TestPermissionSet(unittest.TestCase):
     def test_init(self):
@@ -162,6 +173,20 @@ class TestPermissionSet(unittest.TestCase):
         self.assertEqual(pset.check("e.m.g.b", const.PERM_RW), True)
         self.assertEqual(pset.check("f", const.PERM_WRITE), False)
         self.assertEqual(pset.check("f.g", const.PERM_READ), True)
+
+        pset = core.PermissionSet(pdict6)
+        pset.debug = True
+        self.assertEqual(pset.check("a.b.c", const.PERM_WRITE), True)
+        self.assertEqual(pset.check("a.b.c.d", const.PERM_WRITE), True)
+
+        print("STOP, COLLABARATE AND LISTEN")
+
+        pset = core.PermissionSet(pdict7)
+        pset.debug = True
+        self.assertEqual(pset.check("a.b.c", const.PERM_WRITE), True)
+        self.assertEqual(pset.check("a.b.c.d", const.PERM_WRITE), True)
+
+
 
     def test_check_any(self):
 
