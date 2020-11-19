@@ -55,9 +55,11 @@
   - Python3.4 support
   - Python3.5 support
 Unreleased:
-  added: []
+  added:
+  - const.PERM_CRUD
   changed: []
   deprecated: []
-  fixed: []
+  fixed:
+  - several bugs with implicit and explicit permission checking
   removed: []
   security: []
