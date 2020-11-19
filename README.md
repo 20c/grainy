@@ -4,7 +4,6 @@
 [![PyPI](https://img.shields.io/pypi/pyversions/grainy.svg?maxAge=600)](https://pypi.python.org/pypi/grainy)
 [![Travis CI](https://img.shields.io/travis/20c/grainy.svg?maxAge=60)](https://travis-ci.org/20c/grainy)
 [![Codecov](https://img.shields.io/codecov/c/github/20c/grainy/master.svg?maxAge=60)](https://codecov.io/github/20c/grainy)
-[![Requires.io](https://img.shields.io/requires/github/20c/grainy.svg?maxAge=60)](https://requires.io/github/20c/grainy/requirements)
 
 granular permissions utility
 
