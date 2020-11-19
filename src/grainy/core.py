@@ -420,9 +420,11 @@ class PermissionSet:
         if not l:
             l = len(keys)
 
+        """
         debug = getattr(self, "debug", False)
         if debug:
             print("KEYS", keys, "pos", i, "flags", flags, "length", l, "expl", explicit)
+        """
 
         try:
             key = keys[i]
@@ -462,9 +464,11 @@ class PermissionSet:
                     l=l,
                 )
 
+        """
         if debug:
             print("KEYS (inner)", keys, "pos", i, "flags", flags, "length", l, "expl", explicit)
             print("key", key_flag, key_implicit, key_pos, "wc", wc_flag, wc_implicit, wc_pos)
+        """
 
         if explicit and key_pos == 0 and wc_pos == 0:
             return None, i, implicit
