@@ -420,9 +420,9 @@ class PermissionSet:
         if not l:
             l = len(keys)
 
-        #debug = getattr(self, "debug", False)
-        #if debug:
-        #    print("KEYS", keys, "pos", i, "flags", flags, "length", l)
+        debug = getattr(self, "debug", False)
+        if debug:
+            print("KEYS", keys, "pos", i, "flags", flags, "length", l, "expl", explicit)
 
         try:
             key = keys[i]
@@ -462,20 +462,21 @@ class PermissionSet:
                     l=l,
                 )
 
-        #if debug:
-        #    print("KEYS (inner)", keys, "pos", i, "flags", flags, "length", l)
-        #    print("key", key_flag, key_implicit, key_pos, "wc", wc_flag, wc_implicit, wc_pos)
+        if debug:
+            print("KEYS (inner)", keys, "pos", i, "flags", flags, "length", l, "expl", explicit)
+            print("key", key_flag, key_implicit, key_pos, "wc", wc_flag, wc_implicit, wc_pos)
 
         if explicit and key_pos == 0 and wc_pos == 0:
             return None, i, implicit
 
-        if wc_flag is not None:
+
+        if wc_flag is not None and (not explicit or not wc_implicit):
             if key_pos < wc_pos:
                 if not wc_implicit or key_implicit:
                     return wc_flag, wc_pos, wc_implicit
             if key_flag is None:
                 return wc_flag, wc_pos, wc_implicit
-        if key_flag is not None:
+        if key_flag is not None and (not explicit or not key_implicit):
             if i < key_pos:
                 if not key_implicit or implicit:
                     return key_flag, key_pos, key_implicit
@@ -505,8 +506,8 @@ class PermissionSet:
             namespace = Namespace(namespace)
         keys = namespace.keys
 
-        p, _, _ = self._check(keys, self.index, explicit=explicit)
-        if not p:
+        p, pos, implicit = self._check(keys, self.index, explicit=explicit)
+        if not p or (explicit and implicit) or (explicit and pos != len(keys)):
             p = 0
         return p
 

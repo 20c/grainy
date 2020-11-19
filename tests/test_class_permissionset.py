@@ -74,8 +74,19 @@ pdict7 = {
 
 pdict8 = {
     "a.b": const.PERM_READ,
-    "a.b.*.d.*.e.f": const.PERM_READ,
+    "a.b.*.d.*.f.g": const.PERM_READ,
     "a.b.20525": const.PERM_READ | const.PERM_CREATE,
+}
+
+pdict9 = {
+    "peeringdb.organization" : const.PERM_READ,
+    "peeringdb.organization.*.network.*.poc_set.public": const.PERM_READ,
+    "peeringdb.organization.*.internetexchange.*.ixf_ixp_member_list_url.public": const.PERM_READ,
+}
+
+pdict10 = {
+    "peeringdb.organization" : const.PERM_READ,
+    "peeringdb.organization.*.internetexchange.*.ixf_ixp_member_list_url.public": const.PERM_READ,
 }
 
 
@@ -191,6 +202,20 @@ class TestPermissionSet(unittest.TestCase):
         pset = core.PermissionSet(pdict8)
         self.assertEqual(pset.check("a.b.20525.d", const.PERM_CREATE), True)
         self.assertEqual(pset.check("a.b.20525.d.*", const.PERM_CREATE), True)
+        self.assertEqual(pset.check("a.b.20525.d.1234.f.g", const.PERM_READ), True)
+
+        pset = core.PermissionSet(pdict9)
+        self.assertEqual(
+            pset.check("peeringdb.organization.10356.network.20.poc_set.private", const.PERM_READ, explicit=True),
+            False
+        )
+
+        pset = core.PermissionSet(pdict10)
+        self.assertEqual(
+            pset.check("peeringdb.organization.10356.network.20.poc_set.private", const.PERM_READ, explicit=True),
+            False
+        )
+
 
 
 
