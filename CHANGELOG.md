@@ -2,6 +2,9 @@
 
 
 ## Unreleased
+
+
+## 1.6.0
 ### Added
 - python3.9 support
 - const.PERM_CRUD
