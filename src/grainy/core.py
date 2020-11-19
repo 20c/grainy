@@ -796,7 +796,8 @@ class Applicator:
 
 class NamespaceKeyApplicator(Applicator):
 
-    NAMESPACE_KEY = "_grainy"
+    namespace_key = "_grainy"
+    remove_namespace_key = True
     denied = object()
 
     def apply(self, data, **kwargs):
@@ -804,7 +805,7 @@ class NamespaceKeyApplicator(Applicator):
         if isinstance(data, list):
             return self.apply_list(data)
         elif isinstance(data, dict):
-            namespace = data.get(self.NAMESPACE_KEY)
+            namespace = data.get(self.namespace_key)
 
             explicit = False
             fn = False
@@ -818,8 +819,8 @@ class NamespaceKeyApplicator(Applicator):
 
             if namespace and not self.pset.check(namespace, 0x01, explicit=explicit):
                 return self.denied
-            elif namespace:
-                del data[self.NAMESPACE_KEY]
+            elif namespace and self.remove_namespace_key:
+                del data[self.namespace_key]
 
             return self.apply_dict(data)
         return data
