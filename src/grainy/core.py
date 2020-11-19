@@ -375,7 +375,7 @@ class PermissionSet:
         idx = {}
         for _, p in sorted(list(self.permissions.items()), key=lambda x: str(x[0])):
             branch = idx
-            parent_p = const.PERM_DENY
+            parent_p = None
             for k in p.namespace.keys:
                 if not k in branch:
                     branch[k] = {"__": parent_p}
@@ -413,6 +413,8 @@ class PermissionSet:
         return self.index
 
     def _check(self, keys, branch, flags=0, i=0, explicit=False, l=0):
+
+        implicit = branch.get("__implicit")
 
         try:
             key = keys[i]
@@ -455,12 +457,14 @@ class PermissionSet:
         if explicit and key_pos == 0 and wc_pos == 0:
             return 0, i
 
-        if wc_flag:
-            if key_pos < wc_pos or not key_flag:
+
+        if wc_flag is not None:
+            if key_pos < wc_pos or key_flag is None:
                 return wc_flag, wc_pos
-        if key_flag:
-            if key_pos > i or not flags:
+        if key_flag is not None:
+            if key_pos > i or flags is None:
                 return key_flag, key_pos
+
         return flags, i
 
     def get_permissions(self, namespace, explicit=False):

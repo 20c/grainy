@@ -102,7 +102,7 @@ class TestPermissionSet(unittest.TestCase):
                     },
                 },
             },
-            "b": {"__implicit": True, "__": 0, "c": {"__implicit": False, "__": 1}},
+            "b": {"__implicit": True, "__": None, "c": {"__implicit": False, "__": 1}},
             "k": {
                 "__": 1,
                 "__implicit": False,
