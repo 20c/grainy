@@ -412,28 +412,36 @@ class PermissionSet:
 
         return self.index
 
-    def _check(self, keys, branch, flags=0, i=0, explicit=False, l=0):
+    def _check(self, keys, branch, flags=None, i=0, explicit=False, l=0):
 
         implicit = branch.get("__implicit")
 
-        try:
-            key = keys[i]
-        except IndexError:
-            return flags, i
-
-        key_flag = 0
-        key_pos = 0
-        wc_flag = 0
-        wc_pos = 0
 
         if not l:
             l = len(keys)
 
+        #debug = getattr(self, "debug", False)
+        #if debug:
+        #    print("KEYS", keys, "pos", i, "flags", flags, "length", l)
+
+        try:
+            key = keys[i]
+        except IndexError:
+            return flags, i, implicit
+
+        key_flag = None
+        key_implicit = True
+        key_pos = 0
+        wc_flag = None
+        wc_implicit = True
+        wc_pos = 0
+
+
         if key in branch:
             if explicit and branch[key].get("__implicit") and i + 1 >= l:
-                key_flag, key_pos = 0, 0
+                key_flag, key_pos = None, 0
             else:
-                key_flag, key_pos = self._check(
+                key_flag, key_pos, key_implicit = self._check(
                     keys,
                     branch[key],
                     flags=branch[key].get("__", flags),
@@ -443,9 +451,9 @@ class PermissionSet:
                 )
         if "*" in branch:
             if explicit and branch["*"].get("__implicit") and i + 1 >= l:
-                wc_flag, wc_pos = 0, 0
+                wc_flag, wc_pos = None, 0
             else:
-                wc_flag, wc_pos = self._check(
+                wc_flag, wc_pos, wc_implicit = self._check(
                     keys,
                     branch["*"],
                     flags=branch["*"].get("__", flags),
@@ -454,18 +462,27 @@ class PermissionSet:
                     l=l,
                 )
 
-        if explicit and key_pos == 0 and wc_pos == 0:
-            return 0, i
+        #if debug:
+        #    print("KEYS (inner)", keys, "pos", i, "flags", flags, "length", l)
+        #    print("key", key_flag, key_implicit, key_pos, "wc", wc_flag, wc_implicit, wc_pos)
 
+        if explicit and key_pos == 0 and wc_pos == 0:
+            return None, i, implicit
 
         if wc_flag is not None:
-            if key_pos < wc_pos or key_flag is None:
-                return wc_flag, wc_pos
+            if key_pos < wc_pos:
+                if not wc_implicit or key_implicit:
+                    return wc_flag, wc_pos, wc_implicit
+            if key_flag is None:
+                return wc_flag, wc_pos, wc_implicit
         if key_flag is not None:
-            if key_pos > i or flags is None:
-                return key_flag, key_pos
+            if i < key_pos:
+                if not key_implicit or implicit:
+                    return key_flag, key_pos, key_implicit
+                if flags is None:
+                    return key_flag, key_pos, key_implicit
 
-        return flags, i
+        return flags, i, implicit
 
     def get_permissions(self, namespace, explicit=False):
         """
@@ -488,7 +505,9 @@ class PermissionSet:
             namespace = Namespace(namespace)
         keys = namespace.keys
 
-        p, _ = self._check(keys, self.index, explicit=explicit)
+        p, _, _ = self._check(keys, self.index, explicit=explicit)
+        if not p:
+            p = 0
         return p
 
     def expandable(self, namespace):
