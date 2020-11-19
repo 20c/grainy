@@ -3,6 +3,7 @@
 
 ## Unreleased
 ### Added
+- python3.9 support
 - const.PERM_CRUD
 - strip argument to Namespace.set and Namespace.__init__ (defaults to True)
 - NamespaceKeyApplicator
