@@ -2,6 +2,12 @@
 
 
 ## Unreleased
+### Added
+- const.PERM_CRUD
+- strip argument to Namespace.set and Namespace.__init__ (defaults to True)
+- NamespaceKeyApplicator
+### Fixed
+- several bugs with implicit and explicit permission checking
 
 
 ## 1.5.0
