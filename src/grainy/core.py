@@ -796,8 +796,18 @@ class Applicator:
 
 class NamespaceKeyApplicator(Applicator):
 
+    """
+    Applicator that looks for permission namespaces from
+    a specified field in the dict it is scanning
+    """
+
+    # field name that holds permission namespace
     namespace_key = "_grainy"
+
+    # remove the permission namespace field from the
+    # data during application
     remove_namespace_key = True
+
     denied = object()
 
     def apply(self, data, **kwargs):
