@@ -57,6 +57,8 @@
 Unreleased:
   added:
   - const.PERM_CRUD
+  - strip argument to Namespace.set and Namespace.__init__ (defaults to True)
+  - NamespaceKeyApplicator
   changed: []
   deprecated: []
   fixed:
