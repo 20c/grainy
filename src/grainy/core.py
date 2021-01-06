@@ -339,7 +339,7 @@ class PermissionSet:
             raise KeyError("No permission registered under namespace '%s'" % namespace)
         self.update_index()
 
-    def update(self, permissions):
+    def update(self, permissions, override=True):
         """
         Update the permissionset with a dict of namespace<str>:permission<Permission|int|long>
         pairs
@@ -357,8 +357,11 @@ class PermissionSet:
         **Arguments**
 
         - permissions (`dict`): dict mapping namespaces (`str`) to permission (`Permission` or `int`)
+        - override (`bool`=True): if True will override existing namespaces if they exist
         """
         for k, v in list(permissions.items()):
+            if not override and k in self.permissions:
+                continue
             self.__setitem__(k, v, reindex=False)
         self.update_index()
 

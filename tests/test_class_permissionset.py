@@ -155,6 +155,10 @@ class TestPermissionSet(unittest.TestCase):
         self.assertEqual(pset.check("x", const.PERM_READ), True)
         self.assertEqual(pset.check("z", const.PERM_READ), True)
 
+        pset.update({"x": const.PERM_WRITE}, override=False)
+        self.assertEqual(pset.check("x", const.PERM_READ), True)
+        self.assertEqual(pset.check("x", const.PERM_WRITE), False)
+
     def test_setitem_delitem(self):
         pset = core.PermissionSet()
         pset["a"] = const.PERM_READ

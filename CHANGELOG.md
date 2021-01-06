@@ -2,6 +2,8 @@
 
 
 ## Unreleased
+### Added
+- `PermissionSet.update`: add `override` argument
 
 
 ## 1.6.0

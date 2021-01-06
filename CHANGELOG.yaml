@@ -63,7 +63,8 @@
   fixed:
   - several bugs with implicit and explicit permission checking
 Unreleased:
-  added: []
+  added:
+  - '`PermissionSet.update`: add `override` argument'
   changed: []
   deprecated: []
   fixed: []
