@@ -62,9 +62,11 @@
   - NamespaceKeyApplicator
   fixed:
   - several bugs with implicit and explicit permission checking
-Unreleased:
+1.7.0:
   added:
   - '`PermissionSet.update`: add `override` argument'
+Unreleased:
+  added: []
   changed: []
   deprecated: []
   fixed: []
