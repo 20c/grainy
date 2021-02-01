@@ -474,9 +474,9 @@ class PermissionSet:
 
         if wc_flag is not None and (not explicit or not wc_implicit):
             if key_pos < wc_pos:
-                if (not wc_implicit or key_implicit) and implicit:
+                if (not wc_implicit or key_implicit) and (implicit or explicit):
                     return wc_flag, wc_pos, wc_implicit
-            if key_flag is None and implicit:
+            if key_flag is None and (implicit or explicit):
                 return wc_flag, wc_pos, wc_implicit
         if key_flag is not None and (not explicit or not key_implicit):
             if i < key_pos:

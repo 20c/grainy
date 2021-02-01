@@ -235,6 +235,7 @@ class TestPermissionSet(unittest.TestCase):
 
         pset = core.PermissionSet(pdict11)
         assert pset.check("a.b.10356.x.2966", const.PERM_CREATE)
+        assert pset.check("a.b.10356.x.2966.i.private", const.PERM_READ, explicit=True)
 
 
 
