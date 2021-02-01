@@ -65,11 +65,13 @@
 1.7.0:
   added:
   - '`PermissionSet.update`: add `override` argument'
+1.7.1:
+  fixed:
+  - bugs with permission checking (#10)
 Unreleased:
   added: []
   changed: []
   deprecated: []
-  fixed:
-  - 'bugs with permission checking (#10)'
+  fixed: []
   removed: []
   security: []
