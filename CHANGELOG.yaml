@@ -69,6 +69,7 @@ Unreleased:
   added: []
   changed: []
   deprecated: []
-  fixed: []
+  fixed:
+  - 'bugs with permission checking (#10)'
   removed: []
   security: []

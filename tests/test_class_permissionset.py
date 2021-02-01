@@ -89,6 +89,19 @@ pdict10 = {
     "a.b.*.x.*.f.public": const.PERM_READ,
 }
 
+pdict11 = {
+    "a.b.10356.x": 15,
+    "a.b": 1,
+    "a.b.*.y.*.h.users": 1,
+    "a.b.20525": 5,
+    "a.b.*.x.*.i.public": 1,
+    "a.b.*.x.*.i.users": 1,
+    "a.b.10356": 1,
+    "a.b.10356.y.*.h.private": 1,
+    "a.b.10356.x.*.i.private": 1
+
+}
+
 
 
 class TestPermissionSet(unittest.TestCase):
@@ -219,6 +232,9 @@ class TestPermissionSet(unittest.TestCase):
             pset.check("a.b.10356.d.20.e.private", const.PERM_READ, explicit=True),
             False
         )
+
+        pset = core.PermissionSet(pdict11)
+        assert pset.check("a.b.10356.x.2966", const.PERM_CREATE)
 
 
 

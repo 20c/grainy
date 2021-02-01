@@ -423,11 +423,7 @@ class PermissionSet:
         if not l:
             l = len(keys)
 
-        """
-        debug = getattr(self, "debug", False)
-        if debug:
-            print("KEYS", keys, "pos", i, "flags", flags, "length", l, "expl", explicit)
-        """
+        #debug = getattr(self, "debug", False)
 
         try:
             key = keys[i]
@@ -466,12 +462,11 @@ class PermissionSet:
                     explicit=explicit,
                     l=l,
                 )
+        #if debug:
+        #    print("")
+        #    print("KEYS (inner)", keys[:i], "pos", i, "flags", flags, "length", l, "expl", explicit, "impl", implicit)
+        #    print("key", key, "flag", key_flag, "implicit", key_implicit, "pos", key_pos, "wc flag", wc_flag, "wc implicit", wc_implicit, "wc pos",  wc_pos)
 
-        """
-        if debug:
-            print("KEYS (inner)", keys, "pos", i, "flags", flags, "length", l, "expl", explicit)
-            print("key", key_flag, key_implicit, key_pos, "wc", wc_flag, wc_implicit, wc_pos)
-        """
 
         if explicit and key_pos == 0 and wc_pos == 0:
             return None, i, implicit
@@ -479,9 +474,9 @@ class PermissionSet:
 
         if wc_flag is not None and (not explicit or not wc_implicit):
             if key_pos < wc_pos:
-                if not wc_implicit or key_implicit:
+                if (not wc_implicit or key_implicit) and implicit:
                     return wc_flag, wc_pos, wc_implicit
-            if key_flag is None:
+            if key_flag is None and implicit:
                 return wc_flag, wc_pos, wc_implicit
         if key_flag is not None and (not explicit or not key_implicit):
             if i < key_pos:
