@@ -78,7 +78,6 @@ class Namespace:
     def __iter__(self):
         yield from self.value.split(".")
 
-
     def __setitem__(self, index, value):
         self.keys[index] = value
         self.set(".".join(self.keys), strip=self.strip)
@@ -419,29 +418,48 @@ class PermissionSet:
 
         implicit = branch.get("__implicit")
 
-
         if not l:
             l = len(keys)
 
-        #debug = getattr(self, "debug", False)
+        # debug = getattr(self, "debug", False)
 
         try:
             key = keys[i]
         except IndexError:
             return flags, i, implicit
 
+        # permission flag for exact key match
         key_flag = None
+
+        # permissions for exact key are implied (or not)
         key_implicit = True
+
+        # position of match in the namespace path for
+        # exact key match
         key_pos = 0
+
+        # permission flag for wildcard match
         wc_flag = None
+
+        # permissions for wildcard match are implied (or not)
         wc_implicit = True
+
+        # position of match in the namespace path for
+        # wildcard match
         wc_pos = 0
 
-
         if key in branch:
+
+            # proceed to next branch by matching key name
+
             if explicit and branch[key].get("__implicit") and i + 1 >= l:
+
+                # explicit match required, but next branch is
+                # implied so we exit
+
                 key_flag, key_pos = None, 0
             else:
+
                 key_flag, key_pos, key_implicit = self._check(
                     keys,
                     branch[key],
@@ -451,7 +469,14 @@ class PermissionSet:
                     l=l,
                 )
         if "*" in branch:
+
+            # proceed down wildcard branch
+
             if explicit and branch["*"].get("__implicit") and i + 1 >= l:
+
+                # explicit match required, but the next branch is
+                # implied so we exit
+
                 wc_flag, wc_pos = None, 0
             else:
                 wc_flag, wc_pos, wc_implicit = self._check(
@@ -462,28 +487,90 @@ class PermissionSet:
                     explicit=explicit,
                     l=l,
                 )
-        #if debug:
+
+        # if debug:
         #    print("")
         #    print("KEYS (inner)", keys[:i], "pos", i, "flags", flags, "length", l, "expl", explicit, "impl", implicit)
         #    print("key", key, "flag", key_flag, "implicit", key_implicit, "pos", key_pos, "wc flag", wc_flag, "wc implicit", wc_implicit, "wc pos",  wc_pos)
 
+        # explicit namespace match required but not found
 
         if explicit and key_pos == 0 and wc_pos == 0:
             return None, i, implicit
 
+        # RETURN wildcard path permission PASS-1
+        # wildcard path produced a permission flag
 
         if wc_flag is not None and (not explicit or not wc_implicit):
+
+            # RETURN wildcard path permission PASS-1-CHECK-1
+            #
+            # we check if wildcard path length is deeper
+            # than exact match path length.
+
             if key_pos < wc_pos:
+
+                # 1. wildcard permission is not implied or both wildcard
+                #    and exact permission are implied
+                #
+                # 2. current branch permission is implied or an explicit
+                #    path is required
+
                 if (not wc_implicit or key_implicit) and (implicit or explicit):
                     return wc_flag, wc_pos, wc_implicit
+
+            # RETURN wildcard path permission PASS-1-CHECK-2
+            #
+            # 1. exact key path has NOT produced a permission
+            #
+            # 2. current branch permission is implied or an explicit
+            #    path is required
+
             if key_flag is None and (implicit or explicit):
                 return wc_flag, wc_pos, wc_implicit
+
+        # RETURN exact path permission PASS-1
+        # exact key path produced a permission flag
+
         if key_flag is not None and (not explicit or not key_implicit):
-            if i < key_pos:
-                if not key_implicit or implicit:
-                    return key_flag, key_pos, key_implicit
-                if flags is None:
-                    return key_flag, key_pos, key_implicit
+
+            # RETURN exact key path permission PASS-1-CHECK-1
+            #
+            # if the exact path permission is not implied or the
+            # current permission is also implied
+
+            if not key_implicit or implicit:
+                return key_flag, key_pos, key_implicit
+
+            # RETURN exact key path permission PASS-1-CHECK-2
+            #
+            # if there are no flags on the current branch (first match)
+            if flags is None:
+                return key_flag, key_pos, key_implicit
+
+        # RETURN wildcard path permission PASS-2
+        # wildcard produced a permission flag, lets check against
+        # current branch
+
+        if wc_flag is not None and (not explicit or not wc_implicit):
+
+            # RETURN wildcard path permission PASS-2-CHECK-1
+            #
+            # if the wildcard path permission is not implied or the
+            # current permission is also implied
+
+            if not wc_implicit or implicit:
+                return wc_flag, wc_pos, wc_implicit
+
+            # RETURN wildcard path permission PASS-1-CHECK-2
+            #
+            # if there are no flags on the current branch (first match)
+
+            if flags is None:
+                return wc_flag, wc_pos, wc_implicit
+
+        # following neither wildard nor exact match produced
+        # a permission flag, return current branch permissions
 
         return flags, i, implicit
 
@@ -533,7 +620,9 @@ class PermissionSet:
             namespace = Namespace(namespace)
         return "?" in namespace.keys
 
-    def expand(self, namespace, explicit=False, index=None, path=None, length=0, exact=False):
+    def expand(
+        self, namespace, explicit=False, index=None, path=None, length=0, exact=False
+    ):
 
         """
         Expands "?" parts of a namespace into a list of namespaces
@@ -571,7 +660,9 @@ class PermissionSet:
                     _path = path + [token]
                 else:
                     _path = path + [k]
-                if (len(_path) == length or not exact) and (index[k]["__"] or not explicit):
+                if (len(_path) == length or not exact) and (
+                    index[k]["__"] or not explicit
+                ):
                     _namespace = Namespace(_path)
                     if _namespace.value:
                         result.append(_namespace)
@@ -579,8 +670,12 @@ class PermissionSet:
                 result += [
                     ns
                     for ns in self.expand(
-                        keys[1:], index=index[k], path=_path, length=length,
-                        explicit=explicit, exact=exact
+                        keys[1:],
+                        index=index[k],
+                        path=_path,
+                        length=length,
+                        explicit=explicit,
+                        exact=exact,
                     )
                 ]
 
@@ -605,7 +700,6 @@ class PermissionSet:
         `bool`: `True` if permissioned `False` if not
 
         """
-
 
         if self.expandable(namespace):
             for _namespace in self.expand(namespace):
@@ -848,4 +942,3 @@ class NamespaceKeyApplicator(Applicator):
             if _item != self.denied:
                 _data[key] = _item
         return _data
-

@@ -72,6 +72,7 @@ Unreleased:
   added: []
   changed: []
   deprecated: []
-  fixed: []
+  fixed:
+  - fix issue with permission checks against namespaces starting with a wildcard
   removed: []
   security: []

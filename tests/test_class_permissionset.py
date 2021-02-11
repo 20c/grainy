@@ -79,13 +79,13 @@ pdict8 = {
 }
 
 pdict9 = {
-    "a.b" : const.PERM_READ,
+    "a.b": const.PERM_READ,
     "a.b.*.d.*.e.public": const.PERM_READ,
     "a.b.*.x.*.f.public": const.PERM_READ,
 }
 
 pdict10 = {
-    "a.b" : const.PERM_READ,
+    "a.b": const.PERM_READ,
     "a.b.*.x.*.f.public": const.PERM_READ,
 }
 
@@ -98,10 +98,10 @@ pdict11 = {
     "a.b.*.x.*.i.users": 1,
     "a.b.10356": 1,
     "a.b.10356.y.*.h.private": 1,
-    "a.b.10356.x.*.i.private": 1
-
+    "a.b.10356.x.*.i.private": 1,
 }
 
+pdict12 = {"*.5": 15, "a.6": 1, "b.6": 1}
 
 
 class TestPermissionSet(unittest.TestCase):
@@ -224,22 +224,22 @@ class TestPermissionSet(unittest.TestCase):
         pset = core.PermissionSet(pdict9)
         self.assertEqual(
             pset.check("a.b.10356.d.20.e.private", const.PERM_READ, explicit=True),
-            False
+            False,
         )
 
         pset = core.PermissionSet(pdict10)
         self.assertEqual(
             pset.check("a.b.10356.d.20.e.private", const.PERM_READ, explicit=True),
-            False
+            False,
         )
 
         pset = core.PermissionSet(pdict11)
         assert pset.check("a.b.10356.x.2966", const.PERM_CREATE)
         assert pset.check("a.b.10356.x.2966.i.private", const.PERM_READ, explicit=True)
 
-
-
-
+        pset = core.PermissionSet(pdict12)
+        pset.debug = True
+        assert pset.check("a.5", const.PERM_CREATE)
 
     def test_check_any(self):
 
