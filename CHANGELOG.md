@@ -2,6 +2,9 @@
 
 
 ## Unreleased
+
+
+## 1.7.2
 ### Fixed
 - fix issue with permission checks against namespaces starting with a wildcard
 

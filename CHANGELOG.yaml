@@ -68,11 +68,13 @@
 1.7.1:
   fixed:
   - bugs with permission checking (#10)
+1.7.2:
+  fixed:
+  - fix issue with permission checks against namespaces starting with a wildcard
 Unreleased:
   added: []
   changed: []
   deprecated: []
-  fixed:
-  - fix issue with permission checks against namespaces starting with a wildcard
+  fixed: []
   removed: []
   security: []
