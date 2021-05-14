@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/grainy.svg?maxAge=60)](https://pypi.python.org/pypi/grainy)
 [![PyPI](https://img.shields.io/pypi/pyversions/grainy.svg?maxAge=600)](https://pypi.python.org/pypi/grainy)
-[![Travis CI](https://img.shields.io/travis/20c/grainy.svg?maxAge=60)](https://travis-ci.org/20c/grainy)
+[![Tests](https://github.com/20c/grainy/workflows/tests/badge.svg)](https://github.com/20c/grainy)
 [![Codecov](https://img.shields.io/codecov/c/github/20c/grainy/master.svg?maxAge=60)](https://codecov.io/github/20c/grainy)
 
 granular permissions utility
@@ -14,7 +14,7 @@ granular permissions utility
 
 ## License
 
-Copyright 2016-2020 20C, LLC
+Copyright 2016-2021 20C, LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this softare except in compliance with the License.
