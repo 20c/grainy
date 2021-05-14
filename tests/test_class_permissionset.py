@@ -103,6 +103,8 @@ pdict11 = {
 
 pdict12 = {"*.5": 15, "a.6": 1, "b.6": 1}
 
+pdict13 = {"*": 15}
+
 
 class TestPermissionSet(unittest.TestCase):
     def test_init(self):
@@ -238,6 +240,9 @@ class TestPermissionSet(unittest.TestCase):
         assert pset.check("a.b.10356.x.2966.i.private", const.PERM_READ, explicit=True)
 
         pset = core.PermissionSet(pdict12)
+        assert pset.check("a.5", const.PERM_CREATE)
+
+        pset = core.PermissionSet(pdict13)
         pset.debug = True
         assert pset.check("a.5", const.PERM_CREATE)
 

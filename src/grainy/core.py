@@ -113,6 +113,9 @@ class Namespace:
             value = ".".join([str(v) for v in value])
         if strip:
             value = value.rstrip(".*")
+            # namespace was all wildcards
+            if value == "":
+                value = "*"
         self.value = value
         self.keys = [k for k in self]
         self.length = len(self.keys)
@@ -379,6 +382,7 @@ class PermissionSet:
             branch = idx
             parent_p = None
             for k in p.namespace.keys:
+
                 if not k in branch:
                     branch[k] = {"__": parent_p}
                     branch[k].update(__implicit=True)
@@ -488,10 +492,10 @@ class PermissionSet:
                     l=l,
                 )
 
-        # if debug:
-        #    print("")
-        #    print("KEYS (inner)", keys[:i], "pos", i, "flags", flags, "length", l, "expl", explicit, "impl", implicit)
-        #    print("key", key, "flag", key_flag, "implicit", key_implicit, "pos", key_pos, "wc flag", wc_flag, "wc implicit", wc_implicit, "wc pos",  wc_pos)
+        #if debug:
+        #   print("")
+        #   print("KEYS (inner)", keys[:i], "pos", i, "flags", flags, "length", l, "expl", explicit, "impl", implicit)
+        #   print("key", key, "flag", key_flag, "implicit", key_implicit, "pos", key_pos, "wc flag", wc_flag, "wc implicit", wc_implicit, "wc pos",  wc_pos)
 
         # explicit namespace match required but not found
 
