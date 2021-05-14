@@ -73,7 +73,9 @@
   - fix issue with permission checks against namespaces starting with a wildcard
 Unreleased:
   added: []
-  changed: []
+  changed:
+  - switch to poetry for package management (#11)
+  - switch to github actions (#9)
   deprecated: []
   fixed:
   - 'fix issue with * and *.* namespacing'
