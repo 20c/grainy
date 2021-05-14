@@ -492,7 +492,7 @@ class PermissionSet:
                     l=l,
                 )
 
-        #if debug:
+        # if debug:
         #   print("")
         #   print("KEYS (inner)", keys[:i], "pos", i, "flags", flags, "length", l, "expl", explicit, "impl", implicit)
         #   print("key", key, "flag", key_flag, "implicit", key_implicit, "pos", key_pos, "wc flag", wc_flag, "wc implicit", wc_implicit, "wc pos",  wc_pos)
