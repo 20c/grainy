@@ -4,6 +4,14 @@
 ## Unreleased
 
 
+## 1.8.0
+### Fixed
+- fix issue with * and *.* namespacing
+### Changed
+- switch to poetry for package management (#11)
+- switch to github actions (#9)
+
+
 ## 1.7.2
 ### Fixed
 - fix issue with permission checks against namespaces starting with a wildcard
