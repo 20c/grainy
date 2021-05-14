@@ -7,5 +7,7 @@ mkdocs:
 python:
   version: 3.7
   install:
-    - method: poetry
+    - method: pip
       path: .
+      extra_requirements:
+        - docs
