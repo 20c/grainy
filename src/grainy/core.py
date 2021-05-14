@@ -812,8 +812,7 @@ class Applicator:
                 else:
                     return None
 
-            if not wc:
-                status = ramap.get("__", status)
+            status = ramap.get("__", status)
 
             handler = None
             key_handler = None

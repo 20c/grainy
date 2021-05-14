@@ -4,6 +4,11 @@
 ## Unreleased
 
 
+## 1.8.1
+### Fixed
+- fix issue with *.* namespacing when applying permissions to data
+
+
 ## 1.8.0
 ### Fixed
 - fix issue with * and *.* namespacing
