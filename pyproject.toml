@@ -5,7 +5,7 @@ build-backend = "poetry.masonry.api"
 [tool.poetry]
 name = "grainy"
 repository = "https://github.com/20c/grainy"
-version = "1.8.0"
+version = "1.8.0.1"
 description = "granular permissions utility"
 authors = [ "20C <code@20c.com>",]
 license = "Apache-2.0"
