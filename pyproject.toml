@@ -5,6 +5,7 @@ build-backend = "poetry.masonry.api"
 [tool.poetry]
 name = "grainy"
 repository = "https://github.com/20c/grainy"
+readme = "README.md"
 version = "1.8.1.1"
 description = "granular permissions utility"
 authors = [ "20C <code@20c.com>",]
