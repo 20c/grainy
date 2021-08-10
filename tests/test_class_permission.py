@@ -1,5 +1,6 @@
-from grainy import core, const
 import unittest
+
+from grainy import const, core
 
 test_ns = core.Namespace("a.b.c")
 

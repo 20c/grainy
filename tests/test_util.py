@@ -1,5 +1,6 @@
 import unittest
-from grainy import core, const
+
+from grainy import const, core
 
 
 class TestUtils(unittest.TestCase):
