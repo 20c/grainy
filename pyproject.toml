@@ -1,7 +1,3 @@
-[build-system]
-requires = [ "poetry>=0.12",]
-build-backend = "poetry.masonry.api"
-
 [tool.poetry]
 name = "grainy"
 repository = "https://github.com/20c/grainy"
