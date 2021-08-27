@@ -1,5 +1,6 @@
-from grainy import core, const
 import unittest
+
+from grainy import const, core
 
 
 class TestNamespace(unittest.TestCase):

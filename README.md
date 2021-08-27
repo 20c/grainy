@@ -4,6 +4,8 @@
 [![PyPI](https://img.shields.io/pypi/pyversions/grainy.svg?maxAge=600)](https://pypi.python.org/pypi/grainy)
 [![Tests](https://github.com/20c/grainy/workflows/tests/badge.svg)](https://github.com/20c/grainy)
 [![Codecov](https://img.shields.io/codecov/c/github/20c/grainy/master.svg?maxAge=60)](https://codecov.io/github/20c/grainy)
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/20c/grainy.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/20c/grainy/context:python)
+[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/20c/grainy.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/20c/grainy/context:javascript)
 
 granular permissions utility
 
@@ -20,11 +22,10 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this softare except in compliance with the License.
 You may obtain a copy of the License at
 
-   http://www.apache.org/licenses/LICENSE-2.0
+http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-

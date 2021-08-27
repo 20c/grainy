@@ -1,9 +1,10 @@
-from grainy import core, const
-import pytest
+import json
 import sys
 import unittest
-import json
 
+import pytest
+
+from grainy import const, core
 
 p1 = core.Permission("a", const.PERM_READ)
 p2 = core.Permission("a.b.c", const.PERM_RW)
