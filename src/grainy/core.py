@@ -2,16 +2,25 @@
 core functionality
 """
 
+from __future__ import annotations
 import grainy.const as const
+from typing import Any
+from typing import Dict
+from typing import Iterator
+from typing import Union
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Callable
 
 
-def list_key_handler(row, idx):
+def list_key_handler(row: Union[Dict[str, List[Dict[str, Any]]], Dict[str, str]], idx: int) -> str:
     if isinstance(row, dict):
         return row.get("id", row.get("name", f"{idx}"))
     return idx
 
 
-def int_flags(flags, mapper=const.PERM_STRING_MAP):
+def int_flags(flags: str, mapper: List[Tuple[int, str]] = const.PERM_STRING_MAP) -> int:
     """
     Converts string permission flags into integer permission flags as
     specified in const.PERM_STRING_MAP
@@ -57,7 +66,7 @@ class Namespace:
     - keys (`list<str>`): namespace keys
     """
 
-    def __init__(self, value, strip=True):
+    def __init__(self, value: Union[List[Union[int, str]], List[str], str], strip: bool = True) -> None:
         """
         **Arguments**
 
@@ -69,13 +78,13 @@ class Namespace:
     def __unicode__(self):
         return self.value
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return self.value.__hash__()
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator:
         yield from self.value.split(".")
 
     def __setitem__(self, index, value):
@@ -85,19 +94,19 @@ class Namespace:
     def __getitem__(self, index):
         return self.keys[index]
 
-    def __eq__(self, other):
+    def __eq__(self, other: Namespace) -> bool:
         return str(self) == str(other)
 
-    def __add__(self, other):
+    def __add__(self, other: Namespace) -> Namespace:
         if not isinstance(other, Namespace):
             raise NotImplemented()
 
         return Namespace(self.keys + other.keys)
 
-    def __iadd__(self, other):
+    def __iadd__(self, other: Namespace) -> Namespace:
         return self.__add__(other)
 
-    def set(self, value, strip=True):
+    def set(self, value: Union[List[Union[int, str]], List[str], str], strip: bool = True) -> None:
         """
         Set the namespace value
 
@@ -120,7 +129,7 @@ class Namespace:
         self.keys = [k for k in self]
         self.length = len(self.keys)
 
-    def match(self, keys, partial=True):
+    def match(self, keys: List[str], partial: bool = True) -> bool:
         """
         Check if the value of this namespace is matched by
         keys
@@ -166,7 +175,7 @@ class Namespace:
 
         return True
 
-    def container(self, data=None):
+    def container(self, data: Optional[Dict[str, int]] = None) -> Tuple[Union[Dict[str, Dict[str, Dict[str, Dict[str, int]]]], Dict[str, Dict[str, Dict[str, Dict]]]], Dict[str, int]]:
         """
         Creates a dict built from the keys of this namespace
 
@@ -219,7 +228,7 @@ class Permission:
     - value (`int`): permission mask
     """
 
-    def __init__(self, namespace, value):
+    def __init__(self, namespace: Union[Namespace, str], value: Optional[int]) -> None:
         """
         **Arguments**
 
@@ -232,11 +241,11 @@ class Permission:
         self.namespace = namespace
         self.value = value
 
-    def __eq__(self, other):
+    def __eq__(self, other: Permission) -> bool:
         r = other.namespace == self.namespace and other.value == self.value
         return r
 
-    def has_value(self):
+    def has_value(self) -> bool:
         """
         Check that value has been set
 
@@ -246,7 +255,7 @@ class Permission:
         """
         return self.value is not None
 
-    def check(self, level):
+    def check(self, level: int) -> bool:
         """
         Check if permission mask contains the specified
         permission level
@@ -279,7 +288,7 @@ class PermissionSet:
     - read_access_map (`dict`)
     """
 
-    def __init__(self, rules=None):
+    def __init__(self, rules: Union[Dict[str, int], List[Permission], None] = None) -> None:
         """
         **Keyword Arguments**
 
@@ -302,7 +311,7 @@ class PermissionSet:
                 self.__add__(Permission(ns, p))
 
     @property
-    def namespaces(self):
+    def namespaces(self) -> List[str]:
         """
         `list` of all namespaces registered in this permission set
         """
@@ -311,18 +320,18 @@ class PermissionSet:
     def __iter__(self):
         yield from list(self.permissions.values())
 
-    def __contains__(self, item):
+    def __contains__(self, item: str) -> bool:
         return item in self.permissions
 
     def __radd__(self, other):
         self.__add__(other)
 
-    def __add__(self, other):
+    def __add__(self, other: Permission) -> None:
         if isinstance(other, Permission):
             self.permissions[str(other.namespace)] = other
         self.update_index()
 
-    def __setitem__(self, key, other, reindex=True):
+    def __setitem__(self, key: str, other: Union[Permission, int], reindex: bool = True) -> None:
         if isinstance(other, Permission):
             self.permissions[key] = other
         elif isinstance(other, int):
@@ -334,14 +343,14 @@ class PermissionSet:
         if reindex:
             self.update_index()
 
-    def __delitem__(self, namespace):
+    def __delitem__(self, namespace: str) -> None:
         if namespace in self.permissions:
             del self.permissions[namespace]
         else:
             raise KeyError("No permission registered under namespace '%s'" % namespace)
         self.update_index()
 
-    def update(self, permissions, override=True):
+    def update(self, permissions: Dict[str, Any], override: bool = True) -> None:
         """
         Update the permissionset with a dict of namespace<str>:permission<Permission|int|long>
         pairs
@@ -367,7 +376,7 @@ class PermissionSet:
             self.__setitem__(k, v, reindex=False)
         self.update_index()
 
-    def update_index(self):
+    def update_index(self) -> Union[Dict[str, Dict[str, Any]], Dict[str, Dict[str, int]]]:
         """
         Regenerates the permission index for this set
 
@@ -398,7 +407,7 @@ class PermissionSet:
 
         ramap = {}
 
-        def update_ramap(branch_idx):
+        def update_ramap(branch_idx: Dict[str, Any]) -> Dict[str, bool]:
             r = {"__": False}
             for k, v in list(branch_idx.items()):
                 if k != "__" and k != "__implicit":
@@ -418,7 +427,7 @@ class PermissionSet:
 
         return self.index
 
-    def _check(self, keys, branch, flags=None, i=0, explicit=False, l=0):
+    def _check(self, keys: List[str], branch: Dict[str, Any], flags: Optional[int] = None, i: int = 0, explicit: bool = False, l: int = 0) -> Tuple[int, int, bool]:
 
         implicit = branch.get("__implicit")
 
@@ -578,7 +587,7 @@ class PermissionSet:
 
         return flags, i, implicit
 
-    def get_permissions(self, namespace, explicit=False):
+    def get_permissions(self, namespace: Union[Namespace, str], explicit: bool = False) -> int:
         """
         Returns the permissions level for the specified namespace
 
@@ -604,7 +613,7 @@ class PermissionSet:
             p = 0
         return p
 
-    def expandable(self, namespace):
+    def expandable(self, namespace: str) -> bool:
         """
         Returns whether or not the submitted namespace is expandable.
 
@@ -625,8 +634,8 @@ class PermissionSet:
         return "?" in namespace.keys
 
     def expand(
-        self, namespace, explicit=False, index=None, path=None, length=0, exact=False
-    ):
+        self, namespace: Union[List[str], str], explicit: bool = False, index: Optional[Dict[str, Any]] = None, path: Optional[List[str]] = None, length: int = 0, exact: bool = False
+    ) -> List:
 
         """
         Expands "?" parts of a namespace into a list of namespaces
@@ -685,7 +694,7 @@ class PermissionSet:
 
         return list(set(result))
 
-    def check(self, namespace, level, explicit=False):
+    def check(self, namespace: str, level: int, explicit: bool = False) -> bool:
         """
         Checks if the permset has permission to the specified namespace
         at the specified level
@@ -713,7 +722,7 @@ class PermissionSet:
 
         return (self.get_permissions(namespace, explicit=explicit) & level) != 0
 
-    def apply(self, data, path=None, applicator=None):
+    def apply(self, data: Dict[str, Any], path: Optional[Any] = None, applicator: Optional[Applicator] = None) -> Dict[str, Any]:
         """
         Apply permissions in this set to the provided data, effectively
         removing all keys from it are not permissioned to be viewed
@@ -751,11 +760,11 @@ class Applicator:
     during application of permissions.
     """
 
-    def __init__(self, pset):
+    def __init__(self, pset: PermissionSet) -> None:
         self.pset = pset
         self.handlers = {}
 
-    def handler(self, path, key=None, explicit=False, **kwargs):
+    def handler(self, path: str, key: Optional[Callable] = None, explicit: bool = False, **kwargs: Any) -> None:
         if not isinstance(path, Namespace):
             path = Namespace(path, strip=False)
         handler = {"namespace": path, "key": key, "explicit": explicit}
@@ -772,7 +781,7 @@ class Applicator:
                     break
         return handler
 
-    def apply(self, data, path=None):
+    def apply(self, data: Dict[str, Any], path: Optional[Any] = None) -> Dict[str, Any]:
         """
         Apply permissions in this set to the provided data, effectively
         removing all keys from it are not permissioned to be viewed
@@ -792,19 +801,19 @@ class Applicator:
         if not isinstance(data, dict):
             return data
 
-        def _enumerate(value):
+        def _enumerate(value: Dict[str, Any]) -> Iterator:
             if isinstance(value, list):
                 yield from enumerate(value)
             elif isinstance(value, dict):
                 yield from list(value.items())
 
-        def _set(container, key, value):
+        def _set(container: Union[Dict[str, Dict[str, bool]], Dict[str, bool]], key: str, value: Union[Dict[str, Any], bool, str]) -> None:
             if isinstance(container, list):
                 container.append(value)
             else:
                 container[key] = value
 
-        def _apply(ramap, value, status=False, wc=False, path=[]):
+        def _apply(ramap: Dict[str, Any], value: Dict[str, Any], status: bool = False, wc: bool = False, path: List[str] = []) -> Dict[str, bool]:
 
             if not isinstance(value, dict) and not isinstance(value, list):
                 if status:
