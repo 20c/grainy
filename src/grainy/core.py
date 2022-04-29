@@ -4,7 +4,7 @@ core functionality
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, Union
+from typing import Any, Callable, Iterator, Union
 
 import grainy.const as const
 
@@ -94,7 +94,7 @@ class Namespace:
 
     def __add__(self, other: Namespace) -> Namespace:
         if not isinstance(other, Namespace):
-            raise NotImplemented()
+            raise NotImplementedError
 
         return Namespace(self.keys + other.keys)
 
@@ -202,7 +202,6 @@ class Namespace:
             data = {}
 
         root = p = d = {}
-        j = 0
         k = None
         for k in self:
             d[k] = {}
@@ -391,7 +390,7 @@ class PermissionSet:
             parent_p = None
             for k in p.namespace.keys:
 
-                if not k in branch:
+                if k not in branch:
                     branch[k] = {"__": parent_p}
                     branch[k].update(__implicit=True)
 
