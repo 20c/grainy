@@ -946,7 +946,7 @@ class NamespaceKeyApplicator(Applicator):
 
     denied = object()
 
-    def apply(self, data, **kwargs):
+    def apply(self, data: Union[list, dict, Any], **kwargs) -> Any:
 
         if isinstance(data, list):
             return self.apply_list(data)
@@ -971,7 +971,7 @@ class NamespaceKeyApplicator(Applicator):
             return self.apply_dict(data)
         return data
 
-    def apply_list(self, data, **kwargs):
+    def apply_list(self, data: list, **kwargs) -> list:
         _data = []
         for row in data:
             _row = self.apply(row)
@@ -979,7 +979,7 @@ class NamespaceKeyApplicator(Applicator):
                 _data.append(_row)
         return _data
 
-    def apply_dict(self, data, **kwargs):
+    def apply_dict(self, data: dict, **kwargs) -> dict:
         _data = {}
         for key, item in data.items():
             _item = self.apply(item)
