@@ -81,7 +81,8 @@
   fixed:
   - fix issue with *.* namespacing when applying permissions to data
 Unreleased:
-  added: []
+  added:
+  - add type hints
   changed: []
   deprecated: []
   fixed: []

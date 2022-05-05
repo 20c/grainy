@@ -2,16 +2,20 @@
 core functionality
 """
 
+from __future__ import annotations
+
+from typing import Any, Callable, Iterator, Union
+
 import grainy.const as const
 
 
-def list_key_handler(row, idx):
+def list_key_handler(row: dict, idx: int) -> str:
     if isinstance(row, dict):
         return row.get("id", row.get("name", f"{idx}"))
     return idx
 
 
-def int_flags(flags, mapper=const.PERM_STRING_MAP):
+def int_flags(flags: str, mapper: list[tuple[int, str]] = const.PERM_STRING_MAP) -> int:
     """
     Converts string permission flags into integer permission flags as
     specified in const.PERM_STRING_MAP
@@ -57,7 +61,7 @@ class Namespace:
     - keys (`list<str>`): namespace keys
     """
 
-    def __init__(self, value, strip=True):
+    def __init__(self, value: list[str] | str, strip: bool = True) -> None:
         """
         **Arguments**
 
@@ -69,13 +73,13 @@ class Namespace:
     def __unicode__(self):
         return self.value
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return self.value.__hash__()
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator:
         yield from self.value.split(".")
 
     def __setitem__(self, index, value):
@@ -85,19 +89,19 @@ class Namespace:
     def __getitem__(self, index):
         return self.keys[index]
 
-    def __eq__(self, other):
+    def __eq__(self, other: Namespace) -> bool:
         return str(self) == str(other)
 
-    def __add__(self, other):
+    def __add__(self, other: Namespace) -> Namespace:
         if not isinstance(other, Namespace):
-            raise NotImplemented()
+            raise NotImplementedError
 
         return Namespace(self.keys + other.keys)
 
-    def __iadd__(self, other):
+    def __iadd__(self, other: Namespace) -> Namespace:
         return self.__add__(other)
 
-    def set(self, value, strip=True):
+    def set(self, value: list[str] | str, strip: bool = True) -> None:
         """
         Set the namespace value
 
@@ -120,7 +124,7 @@ class Namespace:
         self.keys = [k for k in self]
         self.length = len(self.keys)
 
-    def match(self, keys, partial=True):
+    def match(self, keys: list[str], partial: bool = True) -> bool:
         """
         Check if the value of this namespace is matched by
         keys
@@ -166,7 +170,7 @@ class Namespace:
 
         return True
 
-    def container(self, data=None):
+    def container(self, data: dict[str, int] | None = None) -> tuple[dict, dict]:
         """
         Creates a dict built from the keys of this namespace
 
@@ -198,7 +202,6 @@ class Namespace:
             data = {}
 
         root = p = d = {}
-        j = 0
         k = None
         for k in self:
             d[k] = {}
@@ -219,7 +222,7 @@ class Permission:
     - value (`int`): permission mask
     """
 
-    def __init__(self, namespace, value):
+    def __init__(self, namespace: Namespace | str, value: int | None) -> None:
         """
         **Arguments**
 
@@ -232,11 +235,11 @@ class Permission:
         self.namespace = namespace
         self.value = value
 
-    def __eq__(self, other):
+    def __eq__(self, other: Permission) -> bool:
         r = other.namespace == self.namespace and other.value == self.value
         return r
 
-    def has_value(self):
+    def has_value(self) -> bool:
         """
         Check that value has been set
 
@@ -246,7 +249,7 @@ class Permission:
         """
         return self.value is not None
 
-    def check(self, level):
+    def check(self, level: int) -> bool:
         """
         Check if permission mask contains the specified
         permission level
@@ -279,7 +282,9 @@ class PermissionSet:
     - read_access_map (`dict`)
     """
 
-    def __init__(self, rules=None):
+    def __init__(
+        self, rules: dict[str, int] | list[Permission] | None = None
+    ) -> None:
         """
         **Keyword Arguments**
 
@@ -302,7 +307,7 @@ class PermissionSet:
                 self.__add__(Permission(ns, p))
 
     @property
-    def namespaces(self):
+    def namespaces(self) -> list[str]:
         """
         `list` of all namespaces registered in this permission set
         """
@@ -311,18 +316,20 @@ class PermissionSet:
     def __iter__(self):
         yield from list(self.permissions.values())
 
-    def __contains__(self, item):
+    def __contains__(self, item: str) -> bool:
         return item in self.permissions
 
     def __radd__(self, other):
         self.__add__(other)
 
-    def __add__(self, other):
+    def __add__(self, other: Permission) -> None:
         if isinstance(other, Permission):
             self.permissions[str(other.namespace)] = other
         self.update_index()
 
-    def __setitem__(self, key, other, reindex=True):
+    def __setitem__(
+        self, key: str, other: Permission | int, reindex: bool = True
+    ) -> None:
         if isinstance(other, Permission):
             self.permissions[key] = other
         elif isinstance(other, int):
@@ -334,14 +341,14 @@ class PermissionSet:
         if reindex:
             self.update_index()
 
-    def __delitem__(self, namespace):
+    def __delitem__(self, namespace: str) -> None:
         if namespace in self.permissions:
             del self.permissions[namespace]
         else:
             raise KeyError("No permission registered under namespace '%s'" % namespace)
         self.update_index()
 
-    def update(self, permissions, override=True):
+    def update(self, permissions: dict, override: bool = True) -> None:
         """
         Update the permissionset with a dict of namespace<str>:permission<Permission|int|long>
         pairs
@@ -367,7 +374,7 @@ class PermissionSet:
             self.__setitem__(k, v, reindex=False)
         self.update_index()
 
-    def update_index(self):
+    def update_index(self) -> dict:
         """
         Regenerates the permission index for this set
 
@@ -383,7 +390,7 @@ class PermissionSet:
             parent_p = None
             for k in p.namespace.keys:
 
-                if not k in branch:
+                if k not in branch:
                     branch[k] = {"__": parent_p}
                     branch[k].update(__implicit=True)
 
@@ -398,7 +405,7 @@ class PermissionSet:
 
         ramap = {}
 
-        def update_ramap(branch_idx):
+        def update_ramap(branch_idx: dict) -> dict[str, bool]:
             r = {"__": False}
             for k, v in list(branch_idx.items()):
                 if k != "__" and k != "__implicit":
@@ -418,7 +425,15 @@ class PermissionSet:
 
         return self.index
 
-    def _check(self, keys, branch, flags=None, i=0, explicit=False, l=0):
+    def _check(
+        self,
+        keys: list[str],
+        branch: dict,
+        flags: int | None = None,
+        i: int = 0,
+        explicit: bool = False,
+        l: int = 0,
+    ) -> tuple[int, int, bool]:
 
         implicit = branch.get("__implicit")
 
@@ -578,7 +593,9 @@ class PermissionSet:
 
         return flags, i, implicit
 
-    def get_permissions(self, namespace, explicit=False):
+    def get_permissions(
+        self, namespace: Namespace | str, explicit: bool = False
+    ) -> int:
         """
         Returns the permissions level for the specified namespace
 
@@ -604,7 +621,7 @@ class PermissionSet:
             p = 0
         return p
 
-    def expandable(self, namespace):
+    def expandable(self, namespace: Namespace | str) -> bool:
         """
         Returns whether or not the submitted namespace is expandable.
 
@@ -625,8 +642,14 @@ class PermissionSet:
         return "?" in namespace.keys
 
     def expand(
-        self, namespace, explicit=False, index=None, path=None, length=0, exact=False
-    ):
+        self,
+        namespace: Namespace | str,
+        explicit: bool = False,
+        index: dict | None = None,
+        path: list[str] | None = None,
+        length: int = 0,
+        exact: bool = False,
+    ) -> list[Namespace]:
 
         """
         Expands "?" parts of a namespace into a list of namespaces
@@ -685,7 +708,7 @@ class PermissionSet:
 
         return list(set(result))
 
-    def check(self, namespace, level, explicit=False):
+    def check(self, namespace: str, level: int, explicit: bool = False) -> bool:
         """
         Checks if the permset has permission to the specified namespace
         at the specified level
@@ -713,7 +736,12 @@ class PermissionSet:
 
         return (self.get_permissions(namespace, explicit=explicit) & level) != 0
 
-    def apply(self, data, path=None, applicator=None):
+    def apply(
+        self,
+        data: dict,
+        path: Any | None = None,
+        applicator: Applicator | None = None,
+    ) -> dict:
         """
         Apply permissions in this set to the provided data, effectively
         removing all keys from it are not permissioned to be viewed
@@ -751,11 +779,17 @@ class Applicator:
     during application of permissions.
     """
 
-    def __init__(self, pset):
+    def __init__(self, pset: PermissionSet) -> None:
         self.pset = pset
         self.handlers = {}
 
-    def handler(self, path, key=None, explicit=False, **kwargs):
+    def handler(
+        self,
+        path: str,
+        key: Callable | None = None,
+        explicit: bool = False,
+        **kwargs: Any,
+    ) -> None:
         if not isinstance(path, Namespace):
             path = Namespace(path, strip=False)
         handler = {"namespace": path, "key": key, "explicit": explicit}
@@ -772,7 +806,7 @@ class Applicator:
                     break
         return handler
 
-    def apply(self, data, path=None):
+    def apply(self, data: dict, path: Any | None = None) -> dict:
         """
         Apply permissions in this set to the provided data, effectively
         removing all keys from it are not permissioned to be viewed
@@ -792,19 +826,25 @@ class Applicator:
         if not isinstance(data, dict):
             return data
 
-        def _enumerate(value):
+        def _enumerate(value: dict) -> Iterator:
             if isinstance(value, list):
                 yield from enumerate(value)
             elif isinstance(value, dict):
                 yield from list(value.items())
 
-        def _set(container, key, value):
+        def _set(container: dict, key: str, value: dict | bool | str) -> None:
             if isinstance(container, list):
                 container.append(value)
             else:
                 container[key] = value
 
-        def _apply(ramap, value, status=False, wc=False, path=[]):
+        def _apply(
+            ramap: dict,
+            value: dict,
+            status: bool = False,
+            wc: bool = False,
+            path: list[str] = [],
+        ) -> dict[str, bool]:
 
             if not isinstance(value, dict) and not isinstance(value, list):
                 if status:
@@ -905,7 +945,7 @@ class NamespaceKeyApplicator(Applicator):
 
     denied = object()
 
-    def apply(self, data, **kwargs):
+    def apply(self, data: Union[list, dict, Any], **kwargs) -> Any:
 
         if isinstance(data, list):
             return self.apply_list(data)
@@ -930,7 +970,7 @@ class NamespaceKeyApplicator(Applicator):
             return self.apply_dict(data)
         return data
 
-    def apply_list(self, data, **kwargs):
+    def apply_list(self, data: list, **kwargs) -> list:
         _data = []
         for row in data:
             _row = self.apply(row)
@@ -938,7 +978,7 @@ class NamespaceKeyApplicator(Applicator):
                 _data.append(_row)
         return _data
 
-    def apply_dict(self, data, **kwargs):
+    def apply_dict(self, data: dict, **kwargs) -> dict:
         _data = {}
         for key, item in data.items():
             _item = self.apply(item)
