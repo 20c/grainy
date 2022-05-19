@@ -6,7 +6,7 @@
 
 // permission flags
 
-GRAINY_CONST = {
+var GRAINY_CONST = {
   PERM_DENY : 0,
   PERM_READ : 0x01,
   PERM_UPDATE : 0x02,
