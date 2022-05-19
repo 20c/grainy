@@ -806,7 +806,7 @@ class Applicator:
                     break
         return handler
 
-    def apply(self, data: dict, path: Any | None = None) -> dict:
+    def apply(self, data: dict, path: list[str] | None = None) -> dict:
         """
         Apply permissions in this set to the provided data, effectively
         removing all keys from it are not permissioned to be viewed
@@ -917,7 +917,7 @@ class Applicator:
                     self.pset[ns] = const.PERM_DENY
 
         # apply permissions
-        rv = _apply(self.pset.read_access_map, data)
+        rv = _apply(self.pset.read_access_map, data, path=path)
 
         # remove temporarily added deny rules
         for ns, p in list(tmpns.items()):

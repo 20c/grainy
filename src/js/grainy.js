@@ -6,7 +6,7 @@
 
 // permission flags
 
-GRAINY_CONST = {
+window.GRAINY_CONST = {
   PERM_DENY : 0,
   PERM_READ : 0x01,
   PERM_UPDATE : 0x02,
@@ -326,7 +326,7 @@ grainy = {
 
   update_index : function() {
 
-    var parent_p, branch, i, namespace, k, p, idx = {}
+    var parent_p, branch, i, namespace, idx = {}
     var value, keys, key;
 
     for(namespace in this.rules) {
@@ -362,7 +362,7 @@ grainy = {
    */
 
   int_flags : function(flags) {
-    var i, int_flag, str_flag, flag, r = 0;
+    var i, int_flag, str_flag, r = 0;
 
     if(!flags)
       return r
