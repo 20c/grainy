@@ -917,7 +917,7 @@ class Applicator:
                     self.pset[ns] = const.PERM_DENY
 
         # apply permissions
-        rv = _apply(self.pset.read_access_map, data)
+        rv = _apply(self.pset.read_access_map, data, path=path)
 
         # remove temporarily added deny rules
         for ns, p in list(tmpns.items()):
