@@ -7,3 +7,5 @@ release.sh
 .tox
 coverage.xml
 /dist
+
+/node_modules
