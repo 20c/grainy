@@ -1,0 +1,18 @@
+name: Karma Tests
+
+# Run on Pull Request to $branch only
+on: [push, pull_request]
+
+# Job Setup
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2 #Checkout Repo
+    - uses: actions/setup-node@v1 #Setup Node
+      with:
+        node-version: '14'
+    - name: Run Karma Tests
+      run: |
+        npm install
+        npm run test
