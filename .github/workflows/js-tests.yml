@@ -1,4 +1,4 @@
-name: Karma Tests
+name: JavaScript Tests
 
 # Run on Pull Request to $branch only
 on: [push, pull_request]
