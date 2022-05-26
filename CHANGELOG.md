@@ -2,6 +2,11 @@
 
 
 ## Unreleased
+### Added
+- add type hints
+- add support for Python 3.10
+### Removed
+- remove support for Python 3.6
 
 
 ## 1.8.1
