@@ -282,9 +282,7 @@ class PermissionSet:
     - read_access_map (`dict`)
     """
 
-    def __init__(
-        self, rules: dict[str, int] | list[Permission] | None = None
-    ) -> None:
+    def __init__(self, rules: dict[str, int] | list[Permission] | None = None) -> None:
         """
         **Keyword Arguments**
 
