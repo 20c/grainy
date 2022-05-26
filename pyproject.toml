@@ -23,7 +23,7 @@ tox = "^3.20.1"
 black = { version = ">=20", allow-prereleases = true }
 isort = "^5.7.0"
 flake8 = "^3.8.4"
-mypy = "^0.812"
+mypy = "^0.950"
 pre-commit = "^2.13"
 pyupgrade = "^2.19.4"
 
@@ -34,7 +34,7 @@ mkdocs = "^1"
 
 # ctl
 ctl = "^1"
-jinja2 = "^2.11.2"
+jinja2 = "^3"
 tmpl = "^1"
 twine = "^3.3.0"
 
