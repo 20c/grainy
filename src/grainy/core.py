@@ -4,7 +4,7 @@ core functionality
 
 from __future__ import annotations
 
-from typing import Any, Callable, Iterator, Union
+from typing import Any, Callable, Iterator
 
 import grainy.const as const
 
@@ -943,7 +943,7 @@ class NamespaceKeyApplicator(Applicator):
 
     denied = object()
 
-    def apply(self, data: Union[list, dict, Any], **kwargs) -> Any:
+    def apply(self, data: list | dict | Any, **kwargs) -> Any:
 
         if isinstance(data, list):
             return self.apply_list(data)
