@@ -430,13 +430,13 @@ class PermissionSet:
         flags: int | None = None,
         i: int = 0,
         explicit: bool = False,
-        l: int = 0,
+        length: int = 0,
     ) -> tuple[int, int, bool]:
 
         implicit = branch.get("__implicit")
 
-        if not l:
-            l = len(keys)
+        if not length:
+            length = len(keys)
 
         # debug = getattr(self, "debug", False)
 
@@ -469,7 +469,7 @@ class PermissionSet:
 
             # proceed to next branch by matching key name
 
-            if explicit and branch[key].get("__implicit") and i + 1 >= l:
+            if explicit and branch[key].get("__implicit") and i + 1 >= length:
 
                 # explicit match required, but next branch is
                 # implied so we exit
@@ -483,13 +483,13 @@ class PermissionSet:
                     flags=branch[key].get("__", flags),
                     i=i + 1,
                     explicit=explicit,
-                    l=l,
+                    length=length,
                 )
         if "*" in branch:
 
             # proceed down wildcard branch
 
-            if explicit and branch["*"].get("__implicit") and i + 1 >= l:
+            if explicit and branch["*"].get("__implicit") and i + 1 >= length:
 
                 # explicit match required, but the next branch is
                 # implied so we exit
@@ -502,7 +502,7 @@ class PermissionSet:
                     flags=branch["*"].get("__", flags),
                     i=i + 1,
                     explicit=explicit,
-                    l=l,
+                    length=length,
                 )
 
         # if debug:
