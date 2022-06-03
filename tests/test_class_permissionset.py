@@ -1,8 +1,4 @@
-import json
-import sys
 import unittest
-
-import pytest
 
 from grainy import const, core
 
@@ -251,27 +247,27 @@ class TestPermissionSet(unittest.TestCase):
 
         pset = core.PermissionSet(pdict5)
 
-        assert pset.check("a.b.?", const.PERM_READ) == True
-        assert pset.check("a.b.?", const.PERM_WRITE) == True
-        assert pset.check("a.?.?", const.PERM_READ) == True
-        assert pset.check("a.?.?", const.PERM_WRITE) == True
-        assert pset.check("a.?.c", const.PERM_READ) == True
-        assert pset.check("a.?.c", const.PERM_WRITE) == False
-        assert pset.check("a.?.d", const.PERM_WRITE) == True
+        assert pset.check("a.b.?", const.PERM_READ) is True
+        assert pset.check("a.b.?", const.PERM_WRITE) is True
+        assert pset.check("a.?.?", const.PERM_READ) is True
+        assert pset.check("a.?.?", const.PERM_WRITE) is True
+        assert pset.check("a.?.c", const.PERM_READ) is True
+        assert pset.check("a.?.c", const.PERM_WRITE) is False
+        assert pset.check("a.?.d", const.PERM_WRITE) is True
 
-        assert pset.check("x.b.?", const.PERM_READ) == True
-        assert pset.check("x.b.?", const.PERM_WRITE) == True
-        assert pset.check("x.?.?", const.PERM_READ) == True
-        assert pset.check("x.?.?", const.PERM_WRITE) == True
-        assert pset.check("x.?.z", const.PERM_READ) == True
-        assert pset.check("x.?.z", const.PERM_WRITE) == False
-        assert pset.check("x.?.x", const.PERM_WRITE) == True
+        assert pset.check("x.b.?", const.PERM_READ) is True
+        assert pset.check("x.b.?", const.PERM_WRITE) is True
+        assert pset.check("x.?.?", const.PERM_READ) is True
+        assert pset.check("x.?.?", const.PERM_WRITE) is True
+        assert pset.check("x.?.z", const.PERM_READ) is True
+        assert pset.check("x.?.z", const.PERM_WRITE) is False
+        assert pset.check("x.?.x", const.PERM_WRITE) is True
 
-        assert pset.check("?.?.?", const.PERM_READ) == True
-        assert pset.check("?.?.?", const.PERM_WRITE) == True
+        assert pset.check("?.?.?", const.PERM_READ) is True
+        assert pset.check("?.?.?", const.PERM_WRITE) is True
 
-        assert pset.check("a.?", const.PERM_READ) == False
-        assert pset.check("?.s", const.PERM_READ) == True
+        assert pset.check("a.?", const.PERM_READ) is False
+        assert pset.check("?.s", const.PERM_READ) is True
 
     def test_check_explicit(self):
         pset = core.PermissionSet(pdict)

@@ -83,8 +83,10 @@
 Unreleased:
   added:
   - add type hints
+  - add support for Python 3.10
   changed: []
   deprecated: []
   fixed: []
-  removed: []
+  removed:
+  - remove support for Python 3.6
   security: []

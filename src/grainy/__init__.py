@@ -1,1 +1,1 @@
-from grainy.core import *
+from grainy.core import *  # noqa
