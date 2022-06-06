@@ -17,7 +17,7 @@ jobs:
         npm install
         npm run linting
 
-  build:
+  test:
     needs: linting
     runs-on: ubuntu-latest
     steps:
@@ -27,4 +27,5 @@ jobs:
         node-version: '14'
     - name: Run Karma Tests
       run: |
+        npm install
         npm run test
