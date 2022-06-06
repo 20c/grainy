@@ -290,7 +290,7 @@ window.grainy = {
         }
 
         if( (_path.length == length || !exact) && (index[k]["__"] || !explicit)) {
-          _namespace = _path.join(this.delimiter).replace(/[\\.\\*]+$/g,"")
+          _namespace = _path.join(this.delimiter).replace(/[\.\*]+$/g, "") // eslint-disable-line no-useless-escape
           if(_namespace)
             result.push(_namespace)
         }
