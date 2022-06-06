@@ -290,7 +290,7 @@ window.grainy = {
         }
 
         if( (_path.length == length || !exact) && (index[k]["__"] || !explicit)) {
-          _namespace = _path.join(this.delimiter).replace(/[\\.\*]+$/g,"")
+          _namespace = _path.join(this.delimiter).replace(/[\\.\\*]+$/g,"")
           if(_namespace)
             result.push(_namespace)
         }
