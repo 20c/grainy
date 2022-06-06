@@ -2,6 +2,7 @@
 
 /* javascript implementation of grainy permissioning logic
  */
+/* global GRAINY_CONST, grainy */
 
 
 // permission flags
@@ -39,7 +40,8 @@ GRAINY_CONST.PERM_STRING_MAP[GRAINY_CONST.PERM_DELETE] = "d"
  * @class grainy
  */
 
-grainy = {
+/* exported grainy */
+window.grainy = {
 
   /**
    * namespace delimiter
@@ -201,7 +203,7 @@ grainy = {
   check : function(namespace, level, explicit) {
     level = this.int_flags(level)
     if(this.expandable(namespace)) {
-      var i, _namespace;
+      var i;
       var namespaces = this.expand(namespace, null, null, null, explicit);
       for(i in namespaces) {
         if( (this.get_permissions(namespaces[i], explicit) & level) != 0)
@@ -288,7 +290,7 @@ grainy = {
         }
 
         if( (_path.length == length || !exact) && (index[k]["__"] || !explicit)) {
-          _namespace = _path.join(this.delimiter).replace(/[\.\*]+$/g,"")
+          _namespace = _path.join(this.delimiter).replace(/[\\.\*]+$/g,"")
           if(_namespace)
             result.push(_namespace)
         }

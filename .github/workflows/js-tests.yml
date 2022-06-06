@@ -5,7 +5,20 @@ on: [push, pull_request]
 
 # Job Setup
 jobs:
+  linting:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '14'
+    - name: Run ESLint
+      run: |
+        npm install
+        npm run linting
+
   build:
+    needs: linting
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -14,5 +27,4 @@ jobs:
         node-version: '14'
     - name: Run Karma Tests
       run: |
-        npm install
         npm run test
